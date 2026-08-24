@@ -6,9 +6,9 @@ There is no real dataset anywhere in this repo. Every install, trial, conversion
 week below is invented by a seeded PRNG, shaped so the *method* is demonstrable —
 not so it reports anyone's results.
 
-The scenario, in one line: a subscription app runs a 3-day free trial, converts 24.8%
-of trials to paid, and has no idea whether that is good. Two changes are proposed and
-measured.
+The scenario, in one line: a subscription app runs a 3-day free trial, converts about
+15% of trials to paid — below the floor for its own trial length — and has no idea
+that is where it sits. Two changes are proposed and measured.
 
 Structure follows the one-cube rule: a single atomic table
 
@@ -53,15 +53,15 @@ ARMS = [
         "key": "baseline", "slot": 1, "name": "Baseline", "short": "Baseline",
         "label": "3-day trial · paywall on first launch",
         "i2t": 0.069,          # install -> trial start
-        "t2p": 0.248,          # trial start -> paid
-        "d0": 0.554,           # share of trial cancellations that happen on day 0
+        "t2p": 0.148,          # trial start -> paid — BELOW the floor of its own band
+        "d0": 0.622,           # day-0 cancellations, worse than typical for a 3-day trial
         "renew": 0.781,        # month-2 renewal of new subscribers (the guard metric)
         "live_from": 0,
     },
     {
         "key": "trial14", "slot": 3, "name": "Change A — 14-day trial", "short": "A · 14-day trial",
         "label": "14-day trial · paywall on first launch",
-        "i2t": 0.069, "t2p": 0.331, "d0": 0.361, "renew": 0.788,
+        "i2t": 0.069, "t2p": 0.392, "d0": 0.331, "renew": 0.788,
         "live_from": SPLIT_WEEK,
         "hypothesis": "Three days is not long enough to reach the moment the app is "
                       "actually useful, so the trial is being judged before it has done "
@@ -69,14 +69,15 @@ ARMS = [
         "change": "Trial length on the subscription product: <code>P3D</code> → <code>P14D</code>.",
         "where": "Store product config + <code>trial_days</code> in the paywall copy string. "
                  "One product setting and one string; no new screens.",
-        "expect": "Short trials sit near the bottom of the industry range. Two-week trials "
-                  "sit near the top. Expect trial-to-paid in the low-to-mid 30s.",
+        "expect": "Two-week trials typically land around 42%. Getting there also means fixing "
+                  "how early we ask, so expect to clear the two-week floor of 31% and land "
+                  "short of the middle — high 30s.",
     },
     {
         "key": "latepay", "slot": 2, "name": "Change B — paywall after onboarding",
         "short": "B · late paywall",
         "label": "3-day trial · paywall after onboarding",
-        "i2t": 0.081, "t2p": 0.294, "d0": 0.478, "renew": 0.774,
+        "i2t": 0.081, "t2p": 0.272, "d0": 0.523, "renew": 0.774,
         "live_from": SPLIT_WEEK,
         "hypothesis": "The paywall appears before the user has any reason to want the app. "
                       "Showing it after the first workout — once there is something to lose "
@@ -85,9 +86,9 @@ ARMS = [
                   "completed session.",
         "where": "<code>onboarding_paywall_step</code>: <code>0</code> → <code>4</code> "
                  "(after <code>first_session_complete</code>). Existing screens, new order.",
-        "expect": "Most cancellations happen within hours of the trial starting, so anything "
-                  "that buys context before the ask should move the number. Expect high 20s, "
-                  "plus a lift in trial starts.",
+        "expect": "This keeps the 3-day trial, so it is judged against the short-trial band. "
+                  "Clearing that band's typical 25% would mean the timing alone was worth more "
+                  "than the whole gap we are down. Expect high 20s, plus a lift in trial starts.",
     },
 ]
 
@@ -280,8 +281,25 @@ def main():
     r = {a["key"]: a["t2p"] for a in arms_out}
     if not (r["trial14"] > r["latepay"] > r["baseline"]):
         problems.append("both changes should beat baseline, with A ahead of B")
-    if not (18.0 <= pre_r["t2p"] <= 32.0):
-        problems.append("baseline trial-to-paid %.2f outside the intended 18-32%% window" % pre_r["t2p"])
+    # Each arm is judged inside the band its own trial length belongs to. That is the
+    # decision the arc rests on, so it is asserted rather than left to the copy.
+    short_band, long_band = BENCH["bands"][0], BENCH["bands"][2]
+    if pre_r["t2p"] >= short_band["q1"]:
+        problems.append("baseline %.2f should sit BELOW the short-trial floor of %.1f — "
+                        "without a visible hole there is nothing to diagnose"
+                        % (pre_r["t2p"], short_band["q1"]))
+    lp = next(a for a in arms_out if a["key"] == "latepay")
+    if not (short_band["median"] < lp["t2p"] < short_band["q3"]):
+        problems.append("change B (%.2f) should clear the short-trial median %.1f and stay inside "
+                        "that band — it does not change trial length"
+                        % (lp["t2p"], short_band["median"]))
+    t14 = next(a for a in arms_out if a["key"] == "trial14")
+    if not (long_band["q1"] < t14["t2p"] < long_band["median"]):
+        problems.append("change A (%.2f) should land inside the two-week band (floor %.1f) but "
+                        "below its median %.1f, so headroom is still visible"
+                        % (t14["t2p"], long_band["q1"], long_band["median"]))
+    if pre_r["d0"] <= BENCH["cancel_bands"][0]["d0"]:
+        problems.append("baseline day-0 cancellations should exceed the typical short-trial figure")
     d0 = {a["key"]: a["d0"] for a in arms_out}
     if not (d0["baseline"] > d0["trial14"]):
         problems.append("the longer trial should pull cancellations off day 0")
