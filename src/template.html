@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Is 24.9% good? — Generic Fitness App (demo)</title>
+<title>Is that good? — Generic Fitness App (demo)</title>
 <meta name="description" content="A product-analytics demo: a free-trial conversion number shown first as a standard analytics dashboard, then as an interactive dashboard that says where you stand, what to change, and what it did. All data synthetic.">
 <style>
 /* ============================================================================
@@ -574,7 +574,7 @@ footer p + p{margin-top:8px}
       <div class="col no">
         <h3>What it cannot answer</h3>
         <ul>
-          <li><b>Is 24.9% good?</b> The number is only comparable to itself. There is no
+          <li><b>Is <span id="cant-rate">that</span> good?</b> The number is only comparable to itself. There is no
             outside anchor anywhere in the tool, so nobody in the room can say whether this
             is a crisis or a win.</li>
           <li><b>What should we change?</b> A funnel shows you the leak, never the cause.
@@ -614,7 +614,7 @@ footer p + p{margin-top:8px}
     </div>
 
     <div class="panel">
-      <div class="panel-h"><h2>24.9% against the industry range</h2>
+      <div class="panel-h"><h2><span id="bench-rate">—</span> against the industry range</h2>
         <span class="tag">The anchor the tool doesn't have</span></div>
       <p class="cap">Same number, now with an outside reference. The bars are the typical
         spread of trial-to-paid conversion by trial length; the marker is us. Read the top row
@@ -1241,6 +1241,7 @@ function renderModeA(){
   document.getElementById('hero-n').textContent =
     `${fmtN(P.trials)} trial starts over ${P.weeks} weeks.`;
   document.getElementById('hero-rate').textContent = P.t2p.toFixed(1) + '%';
+  document.getElementById('cant-rate').textContent = P.t2p.toFixed(1) + '%';
 }
 
 /* ===========================================================================
@@ -1360,20 +1361,24 @@ const activeKeys = () => KEYS.filter(k => state.keys.has(k));
 /* ---------------- stage 1 ------------------------------------------------- */
 function renderStage1(){
   const P = D.baseline_pre;
+  document.getElementById('bench-rate').textContent = P.t2p.toFixed(1) + '%';
   benchStrip('c-bench', 'tip-bench', [
     {row:0, value:P.t2p, color:'var(--s1)', label:'Us', full:'Generic Fitness App — 3-day trial'}
   ]);
 
   const shortBand = D.bench.bands[0], longBand = D.bench.bands[2];
   document.getElementById('f-bench').innerHTML =
-    `We are at <b>${P.t2p.toFixed(1)}%</b> against a typical <b>${shortBand.median.toFixed(0)}%</b> ` +
-    `for 3-day trials — so the funnel is doing its job. The row that matters is the bottom one: ` +
-    `apps running two-week trials sit around <b>${longBand.median.toFixed(0)}%</b>. ` +
-    `We are not underperforming our trial length. <b>Our trial length is the ceiling.</b>`;
+    `We are at <b>${P.t2p.toFixed(1)}%</b> — not just under the typical ` +
+    `<b>${shortBand.median.toFixed(0)}%</b> for a 3-day trial, but under the ` +
+    `<b>${shortBand.q1.toFixed(0)}%</b> floor of that band entirely. Roughly three in four apps ` +
+    `running our own trial length do better than we do. Then read the bottom row: apps running ` +
+    `two-week trials sit around <b>${longBand.median.toFixed(0)}%</b>. ` +
+    `<b>So there are two gaps, not one</b> — we are bad at the trial we run, and we run the ` +
+    `trial that converts worst.`;
 
   document.getElementById('tiles-stage1').innerHTML = `
-    <div class="tile"><div class="tl">Trial → paid</div><div class="tv">${P.t2p.toFixed(1)}%</div>
-      <div class="ts">typical for a 3-day trial</div></div>
+    <div class="tile warn"><div class="tl">Trial → paid</div><div class="tv">${P.t2p.toFixed(1)}%</div>
+      <div class="ts">below the ${shortBand.q1.toFixed(0)}% floor for our own trial length</div></div>
     <div class="tile"><div class="tl">Typical at 14+ days</div><div class="tv">${longBand.median.toFixed(0)}%</div>
       <div class="ts">the band we are not in</div></div>
     <div class="tile warn"><div class="tl">Cancel on day 0</div><div class="tv">${P.d0.toFixed(0)}%</div>
@@ -1398,16 +1403,17 @@ function renderStage1(){
   const cb = D.bench.cancel_bands;
   document.getElementById('f-cancel').innerHTML =
     `<b>${P.d0.toFixed(0)}%</b> of cancellations happen on day zero — before a single workout. ` +
-    `That is what a 3-day trial looks like everywhere: around <b>${cb[0].d0.toFixed(0)}%</b> for ` +
-    `3-day trials, falling to roughly <b>${cb[3].d0.toFixed(0)}%</b> at 30 days. These are not people ` +
-    `who tried the product and declined. They are people who were asked to decide before there was ` +
-    `anything to decide about.`;
+    `A 3-day trial typically loses about <b>${cb[0].d0.toFixed(0)}%</b> on day zero, falling to ` +
+    `roughly <b>${cb[3].d0.toFixed(0)}%</b> at 30 days, so we are worse than short trials usually are. ` +
+    `That is the second gap made visible: these are not people who tried the product and declined, ` +
+    `they are people who were asked to decide before there was anything to decide about.`;
 
   document.getElementById('hyp-text').innerHTML =
     `The trial is being cancelled before the product has done anything, so the constraint is not ` +
-    `the app — it is <b>how soon we ask</b> and <b>how long we give them</b>. Two changes follow ` +
-    `directly: give the trial enough room to reach a first workout, and stop asking for the ` +
-    `decision at the moment of least context. Each is testable on its own.`;
+    `the app — it is <b>how soon we ask</b> and <b>how long we give them</b>. Those are the two ` +
+    `gaps the strip showed, and they map to one change each: give the trial enough room to reach ` +
+    `a first workout, and stop asking for the decision at the moment of least context. Each is ` +
+    `testable on its own, and neither is expected to close the whole gap alone.`;
 }
 
 /* ---------------- stage 2 ------------------------------------------------- */
@@ -1529,13 +1535,16 @@ function renderStage3(){
     {row:2, value:VMETA.trial14.t2p, color:SLOT('trial14'), label:'A', full:'Change A — 14-day trial'},
     {row:0, value:VMETA.latepay.t2p, color:SLOT('latepay'), label:'B', full:'Change B — paywall after onboarding'}
   ]);
-  const longBand = D.bench.bands[2];
+  const shortBand = D.bench.bands[0], longBand = D.bench.bands[2];
   document.getElementById('f-bench2').innerHTML =
-    `Change A moves us into the two-week band and lands at <b>${VMETA.trial14.t2p.toFixed(1)}%</b>, ` +
-    `against a typical <b>${longBand.median.toFixed(0)}%</b> there — so there is still room, and we now ` +
-    `know which room. Change B stays on a 3-day trial and reaches <b>${VMETA.latepay.t2p.toFixed(1)}%</b>, ` +
-    `well above what that trial length usually returns. Different mechanisms, and nothing about them ` +
-    `is mutually exclusive.`;
+    `Each arm is judged against the band its own trial length belongs to — that is the only ` +
+    `comparison that means anything. <b>Change A</b> changes the trial length, so it moves to the ` +
+    `bottom row and lands at <b>${VMETA.trial14.t2p.toFixed(1)}%</b> against a typical ` +
+    `<b>${longBand.median.toFixed(0)}%</b> there: inside the band, still short of the middle, which ` +
+    `is what you would expect while the timing problem is still unfixed. <b>Change B</b> keeps the ` +
+    `3-day trial, so it stays on the top row and reaches <b>${VMETA.latepay.t2p.toFixed(1)}%</b> — ` +
+    `past that band's typical <b>${shortBand.median.toFixed(0)}%</b>, from below its floor. ` +
+    `Two different gaps, one closed by each.`;
 
   /* guard metrics */
   document.getElementById('t-guard').innerHTML =
@@ -1557,12 +1566,14 @@ function renderStage3(){
     `because fewer people bounce off a paywall they meet before the app.`;
 
   document.getElementById('rec-text').innerHTML =
-    `<b>Ship Change A.</b> It is one product setting, it produces the larger lift ` +
-    `(<b>+${VMETA.trial14.lift_pp.toFixed(1)} pp</b>, ${VMETA.trial14.lift_rel.toFixed(0)}% relative), and it ` +
-    `moves us into a trial length where the ceiling is materially higher. <b>Then test B on top of it</b> — ` +
-    `it works through a different mechanism (context before the ask, not time to decide) and independently ` +
-    `lifts trial starts, so the two are additive rather than competing. Next question for the dashboard: ` +
-    `does a 14-day trial with a late paywall beat either alone.`;
+    `<b>Ship Change A.</b> One product setting, the larger lift ` +
+    `(<b>+${VMETA.trial14.lift_pp.toFixed(1)} pp</b>), and it moves us into a band where the ceiling is ` +
+    `materially higher. Read the size of that number carefully: most of it is recovering from below ` +
+    `our own floor, not a longer trial being magic. <b>Then test B on top of it.</b> Each change ` +
+    `closes one of the two gaps — A fixes how long we give them, B fixes how early we ask — and A ` +
+    `still sits below its band's middle, which is roughly the room B is designed to take. B also ` +
+    `lifts trial starts on its own. The next question for this dashboard is whether a 14-day trial ` +
+    `with a late paywall beats either alone.`;
 }
 
 function renderModeB(){ renderStage1(); renderStage2(); renderStage3(); }
