@@ -76,7 +76,9 @@ b,strong{font-weight:640}
 /* ---------- top bar ---------- */
 .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--plane) 86%,transparent);
   backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--rule)}
-.topbar .wrap{display:flex;align-items:center;gap:14px;height:56px}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:64px;flex-wrap:nowrap}
+@media (max-width:1180px){.topbar .wrap{height:auto;flex-wrap:wrap;gap:10px;padding-top:9px;padding-bottom:9px}}
+.topbar .brand{flex:none}
 .brand{display:flex;align-items:center;gap:9px;font-weight:660;letter-spacing:-.01em;font-size:14.5px}
 .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
 .brand .sub{color:var(--muted);font-weight:500}
@@ -91,40 +93,39 @@ b,strong{font-weight:640}
 .iconbtn:hover{background:var(--surface-2)}
 
 /* ---------- hero ---------- */
-.hero{padding:40px 0 28px}
-.herogrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
-  gap:clamp(24px,4vw,64px);align-items:center;max-width:1500px}
-@media (max-width:900px){.herogrid{grid-template-columns:1fr;gap:18px;align-items:start}}
-.hero h1{max-width:30ch;margin:10px 0 0}
-.herotext{display:flex;flex-direction:column;gap:11px}
-.hero .lede{max-width:56ch;font-size:clamp(15px,1.35vw,17px)}
+.hero{padding:22px 0 18px}
+.herogrid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:clamp(22px,3.4vw,52px);align-items:start;max-width:1720px}
+@media (max-width:1080px){.herogrid{grid-template-columns:1fr;gap:18px}}
+/* sized to keep the question on ONE line — do not add a max-width in ch here */
+.hero h1{font-size:clamp(19px,1.85vw,27px);margin:7px 0 0;text-wrap:nowrap;white-space:nowrap}
+@media (max-width:1080px){.hero h1{white-space:normal;text-wrap:balance;font-size:clamp(22px,3.4vw,30px)}}
+.heroright{display:flex;flex-direction:column;gap:14px}
+.herotext{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px}
+.hero .lede{max-width:52ch;font-size:13.5px;line-height:1.55}
 .synthetic{margin:0;display:flex;gap:12px;align-items:flex-start;max-width:74ch;
   background:var(--surface);border:1px solid var(--rule);
   border-left:3px solid var(--warn);border-radius:10px;padding:13px 16px;box-shadow:var(--shadow)}
 .synthetic .ico{font-size:15px;line-height:1.4}
 
 /* ---------- setup strip ---------- */
-.setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:26px 0 0;max-width:1500px}
-.setup .card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
-.setup h3{margin-bottom:7px}
-.setup p{font-size:13.5px;color:var(--ink-2);line-height:1.58}
+.setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 22px;margin:0;
+  padding-top:13px;border-top:1px solid var(--rule)}
+.setup .fact h3{margin-bottom:3px;font-size:13px}
+.setup .fact p{font-size:12.5px;color:var(--ink-2);line-height:1.5}
 
 /* ---------- the toggle ---------- */
-.switcher{position:sticky;top:56px;z-index:35;padding:16px 0 15px;
-  background:color-mix(in srgb,var(--plane) 92%,transparent);
-  backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--rule)}
-.switcher .wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-.switcher .switch-note{margin-top:0;flex:1;min-width:260px;max-width:70ch}
+/* the view switcher now lives inside .topbar — no second sticky band */
 .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--rule);
-  border-radius:12px;padding:4px;gap:4px;box-shadow:var(--shadow)}
+  border-radius:10px;padding:3px;gap:3px;box-shadow:var(--shadow);flex:none}
 .seg button{appearance:none;border:0;background:transparent;color:var(--ink-2);cursor:pointer;
-  font:inherit;font-size:15.5px;font-weight:640;padding:13px 26px;border-radius:10px;
+  font:inherit;font-size:13px;font-weight:640;padding:8px 15px;border-radius:8px;
   display:flex;align-items:center;gap:11px;white-space:nowrap;transition:background .14s,color .14s}
-.seg button .n{font-size:12px;font-weight:700;width:21px;height:21px;border-radius:50%;
+.seg button .n{font-size:11px;font-weight:700;width:18px;height:18px;border-radius:50%;
   display:grid;place-items:center;background:var(--rule);color:var(--ink-2)}
 .seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 .seg button[aria-selected="true"] .n{background:var(--accent);color:#fff}
-.switch-note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.switch-note{font-size:12.5px;color:var(--muted);margin-top:12px;max-width:52ch;line-height:1.5}
 
 /* ---------- panels ---------- */
 .mode{padding:4px 0 40px}
@@ -311,7 +312,7 @@ select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
 
 /* ---------- animated segmented control ---------- */
 .seg{position:relative}
-.seg .thumb{position:absolute;top:4px;bottom:4px;left:4px;width:0;border-radius:10px;
+.seg .thumb{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:8px;
   background:var(--surface);box-shadow:var(--shadow);z-index:0;
   transition:transform .38s cubic-bezier(.32,.72,0,1), width .38s cubic-bezier(.32,.72,0,1)}
 .seg button{position:relative;z-index:1}
@@ -460,56 +461,54 @@ footer p + p{margin-top:8px}
 
 <div class="topbar"><div class="wrap">
   <span class="brand"><span class="dot"></span>Generic Fitness App<span class="sub">· Product Analytics</span></span>
+  <div class="seg" role="tablist" aria-label="Choose a view">
+    <span class="thumb" id="seg-thumb" aria-hidden="true"></span>
+    <button role="tab" id="tab-a" aria-controls="mode-a" aria-selected="true">
+      <span class="n">1</span> Standard analytics</button>
+    <button role="tab" id="tab-b" aria-controls="mode-b" aria-selected="false">
+      <span class="n">2</span> Interactive dashboard</button>
+    <button role="tab" id="tab-c" aria-controls="mode-c" aria-selected="false">
+      <span class="n">3</span> How it is built</button>
+  </div>
   <span class="spacer"></span>
   <span class="demo-pill">◆ Demo · synthetic data</span>
   <button class="iconbtn" id="theme" title="Toggle light / dark" aria-label="Toggle light or dark theme">◐</button>
 </div></div>
 
-  <div class="switcher"><div class="wrap">
-    <div class="seg" role="tablist" aria-label="Choose a view">
-      <span class="thumb" id="seg-thumb" aria-hidden="true"></span>
-      <button role="tab" id="tab-a" aria-controls="mode-a" aria-selected="true">
-        <span class="n">1</span> Standard analytics view</button>
-      <button role="tab" id="tab-b" aria-controls="mode-b" aria-selected="false">
-        <span class="n">2</span> Interactive dashboard</button>
-      <button role="tab" id="tab-c" aria-controls="mode-c" aria-selected="false">
-        <span class="n">3</span> How it is built</button>
-    </div>
-    <div class="switch-note" id="switch-note"></div>
-  </div></div>
-
 <main class="wrap">
 
   <section class="hero">
     <div class="herogrid">
-      <div>
+      <div class="heroleft">
         <div class="eyebrow">Free-trial conversion · Mar 3 – May 25</div>
-        <h1>Your trial converts at <span id="hero-rate">—</span>.<br>Is that good?</h1>
+        <h1>Your trial converts at <span id="hero-rate">—</span>. Is that good?</h1>
+        <p class="switch-note" id="switch-note"></p>
       </div>
-      <div class="herotext">
-        <p class="lede"><b>View 1</b> is what a standard analytics tool tells you: a funnel, a
-          trend, a number. Accurate, and it stops there — the tool has no idea what good looks
-          like, what to change, or whether the change worked.</p>
-        <p class="lede"><b>View 2</b> is the same events with the conversation built in: where
-          you stand, what to change, and what it did. Flip the switch above.</p>
-      </div>
-    </div>
-
-    <div class="setup">
-      <div class="card">
-        <h3>The product</h3>
-        <p>A subscription fitness app. Install, hit a paywall on first launch, start a
-        3-day free trial, convert to paid or cancel.</p>
-      </div>
-      <div class="card">
-        <h3>The metric</h3>
-        <p>Trial-to-paid: of the people who start the free trial, how many become paying
-        subscribers. <span id="hero-n"></span></p>
-      </div>
-      <div class="card">
-        <h3>The question</h3>
-        <p>Not "what is the number." Everyone has the number. The question is whether it is
-        good, what would move it, and how you would know if it moved.</p>
+      <div class="heroright">
+        <div class="herotext">
+          <p class="lede"><b>View 1</b> is what a standard analytics tool tells you: a funnel, a
+            trend, a number. Accurate, and it stops there — the tool has no idea what good looks
+            like, what to change, or whether the change worked.</p>
+          <p class="lede"><b>View 2</b> is the same events with the conversation built in: where
+            you stand, what to change, and what it did.</p>
+        </div>
+        <div class="setup">
+          <div class="fact">
+            <h3>The product</h3>
+            <p>A subscription fitness app. Install, hit a paywall on first launch, start a
+            3-day free trial, convert to paid or cancel.</p>
+          </div>
+          <div class="fact">
+            <h3>The metric</h3>
+            <p>Trial-to-paid: of the people who start the free trial, how many become paying
+            subscribers. <span id="hero-n"></span></p>
+          </div>
+          <div class="fact">
+            <h3>The question</h3>
+            <p>Not "what is the number." Everyone has the number. The question is whether it is
+            good, what would move it, and how you would know if it moved.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -522,7 +521,6 @@ footer p + p{margin-top:8px}
   <!-- ==================================================================== -->
   <section class="mode" id="mode-a" role="tabpanel" aria-labelledby="tab-a">
 
-<div class="carrykey"><span class="box"></span><span>Panels outlined like this appear in <b>both views</b> — the data you already had. Everything else is what the dashboard adds on top of it.</span></div>
 
     <div class="toolchrome">
       <span class="tc">Saved dashboard</span>
@@ -601,7 +599,6 @@ footer p + p{margin-top:8px}
   <!-- ==================================================================== -->
   <section class="mode" id="mode-b" role="tabpanel" aria-labelledby="tab-b" hidden>
 
-<div class="carrykey"><span class="box"></span><span>Panels outlined like this appear in <b>both views</b> — the data you already had. Everything else is what the dashboard adds on top of it.</span></div>
 
     <!-- ============ STAGE 1 ============ -->
     <div class="stage">
@@ -1630,7 +1627,7 @@ function setMode(which){
 
   /* the switch is sticky, so it can be clicked from anywhere on the page —
      bring the content area into view first or the wipe happens off-screen */
-  const HEADER = 132;
+  const HEADER = 64;   /* single merged bar */
   const rectTop = host.getBoundingClientRect().top;
   if (rectTop < HEADER - 4 || rectTop > innerHeight * 0.5){
     scrollTo({top: host.offsetTop - HEADER, behavior: 'smooth'});
