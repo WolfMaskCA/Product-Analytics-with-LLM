@@ -1,0 +1,1470 @@
+<!doctype html>
+<html lang="en" data-palette="#2a78d6,#eb6834,#1baf7a,#eda100">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Is 24.9% good? — Generic Fitness App (demo)</title>
+<meta name="description" content="A product-analytics demo: a free-trial conversion number shown first as a standard analytics dashboard, then as an interactive dashboard that says where you stand, what to change, and what it did. All data synthetic.">
+<style>
+/* ============================================================================
+   Tokens. Light is the base; dark is a selected set of steps, not a flip.
+   Series slots + surfaces come from the validated reference palette.
+   ========================================================================= */
+:root{
+  color-scheme:light;
+  --plane:#f9f9f7;
+  --surface:#fcfcfb;
+  --surface-2:#f3f2ee;
+  --ink:#0b0b0b;
+  --ink-2:#52514e;
+  --muted:#898781;
+  --grid:#e1e0d9;
+  --axis:#c3c2b7;
+  --rule:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --good:#0ca30c; --good-ink:#006300; --warn:#fab219; --crit:#d03b3b;
+  --accent:#2a78d6;
+  --ord1:#86b6ef; --ord2:#6da7ec; --ord3:#5598e7; --ord4:#3987e5; --ord5:#256abf; --ord6:#184f95;
+  --band:#e8e7e1;
+  --shadow:0 1px 2px rgba(11,11,11,.05), 0 8px 24px -16px rgba(11,11,11,.25);
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+    --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --rule:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --good-ink:#0ca30c; --accent:#3987e5;
+    --ord1:#184f95; --ord2:#256abf; --ord3:#2a78d6; --ord4:#3987e5; --ord5:#5598e7; --ord6:#86b6ef;
+    --band:#2f2f2c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+  --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --rule:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --good-ink:#0ca30c; --accent:#3987e5;
+  --ord1:#184f95; --ord2:#256abf; --ord3:#2a78d6; --ord4:#3987e5; --ord5:#5598e7; --ord6:#86b6ef;
+  --band:#2f2f2c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.wrap{width:100%;margin:0;padding:0 clamp(20px,3.2vw,60px)}
+h1,h2,h3{line-height:1.25;margin:0}
+h1{font-size:clamp(28px,4.2vw,44px);letter-spacing:-.022em;font-weight:680}
+h2{font-size:clamp(20px,2.4vw,27px);letter-spacing:-.014em;font-weight:660}
+h3{font-size:16px;letter-spacing:-.006em;font-weight:640}
+p{margin:0}
+code{font:.88em/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--surface-2);
+  padding:.1em .38em;border-radius:4px;color:var(--ink-2)}
+b,strong{font-weight:640}
+.eyebrow{font-size:11.5px;font-weight:680;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:clamp(16px,1.6vw,18.5px);line-height:1.62;color:var(--ink-2);max-width:66ch}
+.sm{font-size:13px;color:var(--ink-2)}
+.xs{font-size:12px;color:var(--muted)}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--plane) 86%,transparent);
+  backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--rule)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:56px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:660;letter-spacing:-.01em;font-size:14.5px}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
+.brand .sub{color:var(--muted);font-weight:500}
+.spacer{flex:1}
+.demo-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:640;
+  letter-spacing:.03em;padding:4px 10px;border-radius:999px;
+  background:color-mix(in srgb,var(--warn) 18%,var(--surface));color:var(--ink);
+  border:1px solid color-mix(in srgb,var(--warn) 50%,transparent)}
+.iconbtn{border:1px solid var(--rule);background:var(--surface);color:var(--ink-2);
+  width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1;
+  display:grid;place-items:center}
+.iconbtn:hover{background:var(--surface-2)}
+
+/* ---------- hero ---------- */
+.hero{padding:40px 0 28px}
+.herogrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(24px,4vw,64px);align-items:center;max-width:1500px}
+@media (max-width:900px){.herogrid{grid-template-columns:1fr;gap:18px;align-items:start}}
+.hero h1{max-width:30ch;margin:10px 0 0}
+.herotext{display:flex;flex-direction:column;gap:11px}
+.hero .lede{max-width:56ch;font-size:clamp(15px,1.35vw,17px)}
+.synthetic{margin:0;display:flex;gap:12px;align-items:flex-start;max-width:74ch;
+  background:var(--surface);border:1px solid var(--rule);
+  border-left:3px solid var(--warn);border-radius:10px;padding:13px 16px;box-shadow:var(--shadow)}
+.synthetic .ico{font-size:15px;line-height:1.4}
+
+/* ---------- setup strip ---------- */
+.setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:26px 0 0;max-width:1500px}
+.setup .card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+.setup h3{margin-bottom:7px}
+.setup p{font-size:13.5px;color:var(--ink-2);line-height:1.58}
+
+/* ---------- the toggle ---------- */
+.switcher{position:sticky;top:56px;z-index:35;padding:16px 0 15px;
+  background:color-mix(in srgb,var(--plane) 92%,transparent);
+  backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--rule)}
+.switcher .wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.switcher .switch-note{margin-top:0;flex:1;min-width:260px;max-width:70ch}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--rule);
+  border-radius:12px;padding:4px;gap:4px;box-shadow:var(--shadow)}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink-2);cursor:pointer;
+  font:inherit;font-size:15.5px;font-weight:640;padding:13px 26px;border-radius:10px;
+  display:flex;align-items:center;gap:11px;white-space:nowrap;transition:background .14s,color .14s}
+.seg button .n{font-size:12px;font-weight:700;width:21px;height:21px;border-radius:50%;
+  display:grid;place-items:center;background:var(--rule);color:var(--ink-2)}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg button[aria-selected="true"] .n{background:var(--accent);color:#fff}
+.switch-note{font-size:12.5px;color:var(--muted);margin-top:10px}
+
+/* ---------- panels ---------- */
+.mode{padding:4px 0 40px}
+.mode[hidden]{display:none}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:14px;
+  padding:20px 22px 18px;margin:16px 0;box-shadow:var(--shadow)}
+.panel-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.panel.carry{border-color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--ink-2),var(--shadow)}
+.carrytag{font-size:10.5px;font-weight:680;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--plane);background:var(--ink-2);border-radius:5px;padding:3px 8px;white-space:nowrap}
+.carrykey{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-2);
+  margin:14px 0 2px;line-height:1.5}
+.carrykey .box{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--ink-2);flex:none}
+.panel-h .tag{font-size:11px;font-weight:660;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--rule);border-radius:5px;padding:2px 7px}
+.panel .cap{font-size:13px;color:var(--ink-2);margin:5px 0 14px;max-width:82ch;line-height:1.55}
+.panel .foot{font-size:12.5px;color:var(--muted);margin-top:12px;padding-top:11px;
+  border-top:1px solid var(--rule);line-height:1.55;max-width:88ch}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+
+/* ---------- charts ---------- */
+.chart{width:100%;display:block;overflow:visible}
+.chart .gridline{stroke:var(--grid);stroke-width:1}
+.chart .axis{stroke:var(--axis);stroke-width:1}
+.chart text{fill:var(--muted);font-size:11px;font-family:inherit}
+.chart .tick{font-variant-numeric:tabular-nums}
+.chart .lbl{fill:var(--ink-2);font-size:11.5px;font-weight:640}
+.chart .val{fill:var(--ink);font-size:11.5px;font-weight:660;font-variant-numeric:tabular-nums}
+.chart .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .pt{stroke:var(--surface);stroke-width:2}
+.chart .hit{fill:transparent;cursor:crosshair}
+.chart .cross{stroke:var(--axis);stroke-width:1;pointer-events:none}
+.chart .bar{rx:4}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:2px 0 10px;font-size:12.5px;color:var(--ink-2)}
+.legend span.k{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+.chartbox{position:relative}
+.tip{position:absolute;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .1s;z-index:5;
+  background:var(--surface);border:1px solid var(--rule);border-radius:9px;
+  padding:9px 11px;font-size:12.5px;box-shadow:0 4px 18px -6px rgba(0,0,0,.35);min-width:150px}
+.tip .th{font-weight:660;margin-bottom:5px;color:var(--ink);font-size:12px}
+.tip .tr{display:flex;align-items:center;gap:7px;justify-content:space-between;color:var(--ink-2);line-height:1.7}
+.tip .tr b{color:var(--ink);font-variant-numeric:tabular-nums}
+.tip i{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none;margin-right:1px}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--rule)}
+th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:660;
+  border-bottom:1px solid var(--axis)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+.swatch{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:7px;vertical-align:baseline}
+.tblwrap{overflow-x:auto}
+
+/* ---------- filter bar ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:12px;padding:13px 16px;margin:14px 0 6px}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.fgroup > .fl{font-size:10.5px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{appearance:none;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink-2);
+  border-radius:999px;padding:5px 12px;display:inline-flex;align-items:center;gap:6px;transition:.13s}
+.pill:hover{border-color:var(--axis)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--plane);border-color:var(--ink)}
+.pill .sw{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink)}
+.subtoggle{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.subtoggle button{appearance:none;border:0;font:inherit;font-size:12px;font-weight:600;padding:5px 12px;
+  background:var(--surface);color:var(--ink-2);cursor:pointer}
+.subtoggle button[aria-pressed="true"]{background:var(--ink);color:var(--plane)}
+
+/* ---------- callouts ---------- */
+.callout{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid var(--rule);
+  border-left:3px solid var(--accent);background:var(--surface);line-height:1.62;box-shadow:var(--shadow)}
+.callout.hyp{border-left-color:var(--warn)}
+.callout.win{border-left-color:var(--good)}
+.callout .k{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-bottom:6px}
+.callout p{font-size:14.5px;max-width:80ch}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:16px 0}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.tile .tl{font-size:10.5px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.tile .tv{font-size:29px;font-weight:670;letter-spacing:-.02em;margin:5px 0 3px;line-height:1.1}
+.tile .ts{font-size:12px;color:var(--ink-2);line-height:1.45}
+.tile.good .tv{color:var(--good-ink)}
+
+/* ---------- can / cannot ---------- */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:820px){.vs{grid-template-columns:1fr}}
+.vs .col{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+.vs .col.no{border-left:3px solid var(--crit)}
+.vs .col.yes{border-left:3px solid var(--good)}
+.vs h3{margin-bottom:9px;font-size:14px}
+.vs ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.vs li{font-size:13.5px;color:var(--ink-2);line-height:1.55;padding-left:21px;position:relative}
+.vs li::before{position:absolute;left:0;top:0;font-weight:700}
+.vs .yes li::before{content:"✓";color:var(--good)}
+.vs .no li::before{content:"✕";color:var(--crit)}
+
+/* ---------- phone mockups ---------- */
+.mocks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:6px;max-width:1500px}
+@media (max-width:1000px){.mocks{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.mocks{grid-template-columns:1fr}}
+.mock{display:flex;flex-direction:column;gap:9px}
+.mock .mh{font-size:11.5px;font-weight:680;letter-spacing:.03em;padding:4px 9px;border-radius:6px;
+  color:#fff;align-self:flex-start}
+.phone{border:1px solid var(--axis);border-radius:18px;background:var(--surface);
+  padding:9px 8px 11px;position:relative;box-shadow:var(--shadow)}
+.phone .notch{width:38px;height:4px;border-radius:99px;background:var(--axis);margin:1px auto 8px}
+.scr{background:var(--surface-2);border-radius:12px;padding:12px 11px 13px;
+  display:flex;flex-direction:column;gap:9px;min-height:296px}
+.scr .ttl{font-size:13.5px;font-weight:660;letter-spacing:-.01em}
+.scr .amt{font-size:31px;font-weight:690;letter-spacing:-.025em;line-height:1;
+  font-variant-numeric:tabular-nums}
+.scr .amtl{font-size:10.5px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.scr .stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.scr .st{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:7px 8px}
+.scr .st .sl{font-size:9.5px;font-weight:680;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.scr .st .sv{font-size:15px;font-weight:660;margin-top:2px;font-variant-numeric:tabular-nums}
+.scr input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+  outline:none;cursor:pointer;margin:2px 0}
+.scr input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--accent);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.scr input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--accent);cursor:pointer}
+.scr .ends{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums;margin-top:-3px}
+.scr .fit{font-size:11px;line-height:1.45;border-radius:7px;padding:6px 8px}
+.scr .fit.ok{background:color-mix(in srgb,var(--good) 13%,var(--surface));color:var(--good-ink)}
+.scr .fit.warn{background:color-mix(in srgb,var(--warn) 20%,var(--surface));color:var(--ink)}
+.scr .cta{margin-top:auto;background:var(--accent);color:#fff;border-radius:9px;text-align:center;
+  padding:9px 8px;font-size:12px;font-weight:660}
+.scr .locked{font-size:10.5px;color:var(--muted);text-align:center;padding:5px 0 1px}
+.mock .mcap{font-size:11.5px;color:var(--ink-2);line-height:1.5}
+.mock .mcap b{color:var(--ink)}
+.leadctl{background:var(--surface-2);border:1px solid var(--rule);border-radius:12px;
+  padding:13px 16px;margin:14px 0 18px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.leadctl .lv{font-size:20px;font-weight:670;font-variant-numeric:tabular-nums;min-width:96px}
+.leadctl input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:200px;height:6px;
+  border-radius:99px;outline:none;cursor:pointer}
+.leadctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--accent);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.leadctl input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--accent);cursor:pointer}
+
+/* ---------- timeline ---------- */
+.timeline{list-style:none;margin:8px 0 0;padding:0 0 0 20px;border-left:2px solid var(--grid)}
+.timeline li{position:relative;padding:0 0 16px 18px}
+.timeline li:last-child{padding-bottom:2px}
+.timeline li::before{content:"";position:absolute;left:-27px;top:6px;width:9px;height:9px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--surface)}
+.timeline .d{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.timeline .t{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin-top:2px;max-width:80ch}
+
+/* ---------- method ---------- */
+.steps{counter-reset:s;list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:13px}
+.steps li{counter-increment:s;position:relative;padding-left:38px;font-size:13.5px;color:var(--ink-2);line-height:1.58}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:25px;height:25px;border-radius:50%;
+  background:var(--surface-2);border:1px solid var(--rule);color:var(--ink);
+  font-size:12px;font-weight:680;display:grid;place-items:center}
+.steps li b{color:var(--ink)}
+
+/* ---------- the wipe: the toggle drives a line across the content ---------- */
+.modes{position:relative;overflow-x:clip}
+.modes.wiping{overflow:hidden}
+.modes.wiping .mode{position:absolute;top:0;left:0;width:100%;margin:0}
+.modes.wiping .mode[hidden]{display:block}
+.wipeline{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);z-index:20;
+  pointer-events:none;opacity:0;transition:opacity .18s;
+  box-shadow:0 0 22px 3px color-mix(in srgb,var(--accent) 45%,transparent)}
+.modes.wiping .wipeline{opacity:1}
+.wipeline::before{content:"";position:absolute;top:0;bottom:0;left:-26px;width:26px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 16%,transparent))}
+.wipeknob{position:absolute;top:120px;left:50%;transform:translate(-50%,-50%);
+  width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-size:13px;font-weight:700;
+  box-shadow:0 3px 16px -3px rgba(0,0,0,.55);border:2px solid var(--plane)}
+
+/* ---------- animated segmented control ---------- */
+.seg{position:relative}
+.seg .thumb{position:absolute;top:4px;bottom:4px;left:4px;width:0;border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow);z-index:0;
+  transition:transform .38s cubic-bezier(.32,.72,0,1), width .38s cubic-bezier(.32,.72,0,1)}
+.seg button{position:relative;z-index:1}
+.seg button[aria-selected="true"]{background:transparent;box-shadow:none}
+
+/* ---------- mode transition ---------- */
+.mode{transition:opacity .25s ease}
+.mode.fade{opacity:0}
+@media (prefers-reduced-motion:reduce){
+  .mode{transition:none}
+  .wipeline,.wipeknob{display:none}
+}
+
+/* ---------- mode A as a tile wall ---------- */
+.dashgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:16px;max-width:1720px}
+@media (max-width:900px){.dashgrid{grid-template-columns:1fr}}
+.dashgrid .panel{margin:0}
+.dashgrid .panel.wide{grid-column:1 / -1}
+.toolchrome{display:flex;align-items:center;gap:9px;margin-bottom:12px;
+  padding:8px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surface-2)}
+.toolchrome .tc{font-size:11.5px;color:var(--muted);font-weight:600}
+.toolchrome .tcpill{font-size:11px;border:1px solid var(--rule);border-radius:6px;padding:3px 8px;
+  background:var(--surface);color:var(--ink-2);font-weight:600}
+
+
+/* ---------- stage headers ---------- */
+.stage{display:flex;align-items:center;gap:16px;margin:38px 0 4px;padding:16px 20px;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:14px}
+.stage:first-child{margin-top:8px}
+.stage-n{width:40px;height:40px;flex:none;border-radius:50%;background:var(--ink);color:var(--plane);
+  display:grid;place-items:center;font-size:18px;font-weight:700;letter-spacing:-.02em}
+.stage-t{flex:1;min-width:0}
+.stage-t h2{font-size:clamp(19px,2vw,24px);margin:0}
+.stage-t p{font-size:13px;color:var(--ink-2);margin-top:2px}
+.stage-who{font-size:11px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-2);border:1px solid var(--rule);background:var(--surface);
+  border-radius:999px;padding:5px 13px;white-space:nowrap}
+
+/* ---------- proposed-change cards ---------- */
+.changes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0}
+@media (max-width:1020px){.changes{grid-template-columns:1fr}}
+.changecard{background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--arm);
+  border-radius:14px;padding:18px 20px 20px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:14px}
+.chead{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.cbadge{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--arm);color:#fff;border-radius:6px;padding:4px 9px}
+.chead h3{font-size:17px}
+.cbody{display:flex;flex-direction:column;gap:11px}
+.cfield{display:grid;grid-template-columns:104px 1fr;gap:12px;align-items:baseline}
+@media (max-width:520px){.cfield{grid-template-columns:1fr;gap:2px}}
+.cfl{font-size:10.5px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.cfield p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.cfield p b{color:var(--ink)}
+.cvisual{padding-top:14px;border-top:1px solid var(--rule)}
+
+/* before / after */
+.ba{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap}
+.bacol{display:flex;flex-direction:column;gap:6px;max-width:190px;flex:1;min-width:150px}
+.baarrow{font-size:20px;color:var(--muted);flex:none}
+.balbl{font-size:10.5px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.bastack{display:flex;flex-direction:column;gap:12px}
+.bastack .phone{max-width:210px;align-self:center;width:100%}
+.rail{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px}
+.rstep{font-size:11.5px;font-weight:600;border:1px solid var(--rule);background:var(--surface-2);
+  color:var(--ink-2);border-radius:7px;padding:5px 10px}
+.rstep.mark{background:var(--arm);color:#fff;border-color:transparent}
+.rarrow{font-size:12px;color:var(--muted)}
+.scr .amt.hl{color:var(--arm)}
+.tile.warn .tv{color:var(--crit)}
+
+footer{border-top:1px solid var(--rule);margin-top:36px;padding:26px 0 54px;color:var(--muted);font-size:12.5px}
+footer a{color:var(--ink-2)}
+footer p + p{margin-top:8px}
+.skip{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <span class="brand"><span class="dot"></span>Generic Fitness App<span class="sub">· Product Analytics</span></span>
+  <span class="spacer"></span>
+  <span class="demo-pill">◆ Demo · synthetic data</span>
+  <button class="iconbtn" id="theme" title="Toggle light / dark" aria-label="Toggle light or dark theme">◐</button>
+</div></div>
+
+  <div class="switcher"><div class="wrap">
+    <div class="seg" role="tablist" aria-label="Choose a view">
+      <span class="thumb" id="seg-thumb" aria-hidden="true"></span>
+      <button role="tab" id="tab-a" aria-controls="mode-a" aria-selected="true">
+        <span class="n">1</span> Standard analytics view</button>
+      <button role="tab" id="tab-b" aria-controls="mode-b" aria-selected="false">
+        <span class="n">2</span> Interactive dashboard</button>
+    </div>
+    <div class="switch-note" id="switch-note"></div>
+  </div></div>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="herogrid">
+      <div>
+        <div class="eyebrow">Free-trial conversion · Mar 3 – May 25</div>
+        <h1>Your trial converts at <span id="hero-rate">—</span>.<br>Is that good?</h1>
+      </div>
+      <div class="herotext">
+        <p class="lede"><b>View 1</b> is what a standard analytics tool tells you: a funnel, a
+          trend, a number. Accurate, and it stops there — the tool has no idea what good looks
+          like, what to change, or whether the change worked.</p>
+        <p class="lede"><b>View 2</b> is the same events with the conversation built in: where
+          you stand, what to change, and what it did. Flip the switch above.</p>
+      </div>
+    </div>
+
+    <div class="setup">
+      <div class="card">
+        <h3>The product</h3>
+        <p>A subscription fitness app. Install, hit a paywall on first launch, start a
+        3-day free trial, convert to paid or cancel.</p>
+      </div>
+      <div class="card">
+        <h3>The metric</h3>
+        <p>Trial-to-paid: of the people who start the free trial, how many become paying
+        subscribers. <span id="hero-n"></span></p>
+      </div>
+      <div class="card">
+        <h3>The question</h3>
+        <p>Not "what is the number." Everyone has the number. The question is whether it is
+        good, what would move it, and how you would know if it moved.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="modes">
+    <div class="wipeline" id="wipeline"><div class="wipeknob" id="wipeknob">◂▸</div></div>
+
+  <!-- ==================================================================== -->
+  <!-- MODE A — the standard analytics view                                  -->
+  <!-- ==================================================================== -->
+  <section class="mode" id="mode-a" role="tabpanel" aria-labelledby="tab-a">
+
+<div class="carrykey"><span class="box"></span><span>Panels outlined like this appear in <b>both views</b> — the data you already had. Everything else is what the dashboard adds on top of it.</span></div>
+
+    <div class="toolchrome">
+      <span class="tc">Saved dashboard</span>
+      <span class="tcpill">Trial conversion — weekly</span>
+      <span style="flex:1"></span>
+      <span class="tcpill">Last 12 weeks</span>
+      <span class="tcpill">All users</span>
+      <span class="tcpill">↻ Refreshed 4 min ago</span>
+    </div>
+
+    <div class="dashgrid">
+      <div class="panel">
+        <div class="panel-h"><h2>Subscription funnel</h2><span class="tag">Pooled</span></div>
+        <p class="cap">Install to trial to paid to renewal. Tells you where people leave.</p>
+        <div class="chartbox"><div id="c-funnel"></div><div class="tip" id="tip-funnel"></div></div>
+      </div>
+
+      <div class="panel carry">
+        <div class="panel-h"><h2>Trial-to-paid</h2><span class="tag">Weekly</span>
+          <span class="carrytag">In both views</span></div>
+        <p class="cap">The headline conversion metric over time. Flat, which is either
+          reassuring or alarming depending on information this chart does not have.</p>
+        <div class="chartbox"><div id="c-a-trend"></div><div class="tip" id="tip-a-trend"></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h2>Trial starts per week</h2><span class="tag">Volume</span></div>
+        <p class="cap">The volume check that sits next to a rate chart.</p>
+        <div class="chartbox"><div id="c-a-vol"></div><div class="tip" id="tip-a-vol"></div></div>
+      </div>
+
+      <div class="panel carry">
+        <div class="panel-h"><h2>Summary</h2><span class="tag">Full window</span>
+          <span class="carrytag">In both views</span></div>
+        <div class="tblwrap"><table id="t-a"></table></div>
+        <p class="foot" id="f-a"></p>
+      </div>
+    </div>
+
+    <div class="vs">
+      <div class="col yes">
+        <h3>What this view answers</h3>
+        <ul>
+          <li>What the conversion rate is, and how it moved week to week.</li>
+          <li>Where in the funnel people are lost, and how many.</li>
+          <li>Whether anything broke recently.</li>
+        </ul>
+      </div>
+      <div class="col no">
+        <h3>What it cannot answer</h3>
+        <ul>
+          <li><b>Is 24.9% good?</b> The number is only comparable to itself. There is no
+            outside anchor anywhere in the tool, so nobody in the room can say whether this
+            is a crisis or a win.</li>
+          <li><b>What should we change?</b> A funnel shows you the leak, never the cause.
+            The next step has to be argued somewhere else.</li>
+          <li><b>What exactly would a developer do on Monday?</b> "Improve trial conversion"
+            is not a ticket.</li>
+          <li><b>Did the change work?</b> By the time the next chart is drawn, the context
+            for why it was drawn lives in someone's memory or a deck nobody opens.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="k">So what happens next</span>
+      <p>Somebody exports this to a slide, writes the interpretation by hand, and the analysis
+        immediately starts drifting away from the data. The chart and the argument now live in
+        two different places, and only one of them updates. <b>That gap is the entire product
+        below.</b></p>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- MODE B — the interactive dashboard, in three stages                   -->
+  <!-- ==================================================================== -->
+  <section class="mode" id="mode-b" role="tabpanel" aria-labelledby="tab-b" hidden>
+
+<div class="carrykey"><span class="box"></span><span>Panels outlined like this appear in <b>both views</b> — the data you already had. Everything else is what the dashboard adds on top of it.</span></div>
+
+    <!-- ============ STAGE 1 ============ -->
+    <div class="stage">
+      <div class="stage-n">1</div>
+      <div class="stage-t">
+        <h2>Where we are</h2>
+        <p>The analyst's job: turn the number into a position.</p>
+      </div>
+      <span class="stage-who">For the analyst</span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>24.9% against the industry range</h2>
+        <span class="tag">The anchor the tool doesn't have</span></div>
+      <p class="cap">Same number, now with an outside reference. The bars are the typical
+        spread of trial-to-paid conversion by trial length; the marker is us. Read the top row
+        first, then the bottom row.</p>
+      <div class="chartbox"><div id="c-bench"></div><div class="tip" id="tip-bench"></div></div>
+      <p class="foot" id="f-bench"></p>
+    </div>
+
+    <div class="tiles" id="tiles-stage1"></div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>When trials are cancelled</h2><span class="tag">The diagnosis</span></div>
+      <p class="cap">If people cancelled after trying the app, the product would be the problem.
+        They don't. They cancel before it has a chance.</p>
+      <div class="chartbox"><div id="c-cancel"></div><div class="tip" id="tip-cancel"></div></div>
+      <p class="foot" id="f-cancel"></p>
+    </div>
+
+    <div class="callout hyp">
+      <span class="k">Hypothesis</span>
+      <p id="hyp-text"></p>
+    </div>
+
+    <!-- ============ STAGE 2 ============ -->
+    <div class="stage">
+      <div class="stage-n">2</div>
+      <div class="stage-t">
+        <h2>What we propose</h2>
+        <p>The developer's job: two changes, each one specific enough to ship.</p>
+      </div>
+      <span class="stage-who">For the developer</span>
+    </div>
+
+    <div class="changes" id="changes"></div>
+
+    <!-- ============ STAGE 3 ============ -->
+    <div class="stage">
+      <div class="stage-n">3</div>
+      <div class="stage-t">
+        <h2>What happened</h2>
+        <p>The stakeholder's job: did it work, and is the win real.</p>
+      </div>
+      <span class="stage-who">For the stakeholder</span>
+    </div>
+
+    <div class="tiles" id="tiles-result"></div>
+
+    <div class="filters" id="filters">
+      <div class="fgroup">
+        <span class="fl">Arm</span>
+        <div class="pills" id="p-arm"></div>
+      </div>
+      <div class="fgroup">
+        <span class="fl">Display</span>
+        <div class="subtoggle" id="p-view">
+          <button data-v="chart" aria-pressed="true">Chart</button>
+          <button data-v="table" aria-pressed="false">Table</button>
+        </div>
+      </div>
+      <div class="fgroup" style="flex:1;min-width:180px;align-items:flex-end">
+        <span class="xs" id="f-scope" style="text-align:right;width:100%"></span>
+      </div>
+    </div>
+
+    <div class="panel carry">
+      <div class="panel-h"><h2>Trial-to-paid, by arm</h2><span class="tag">Full window</span>
+        <span class="carrytag">In both views</span></div>
+      <p class="cap">The first four weeks are the baseline alone. The two arms join at the dashed
+        marker, and you can watch them separate from it and stay separated — which is the difference
+        between a result and one good week.</p>
+      <div class="legend" id="lg-b"></div>
+      <div class="chartbox"><div id="c-b-trend"></div><div class="tip" id="tip-b-trend"></div></div>
+      <div class="tblwrap" id="b-table" hidden><table id="t-b"></table></div>
+      <p class="foot" id="f-btrend"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>Where that puts us</h2><span class="tag">Same scale as stage 1</span></div>
+      <p class="cap">The stage-1 chart again, with the arms marked on it. This is the slide —
+        except it is the live dashboard, so it cannot go stale.</p>
+      <div class="chartbox"><div id="c-bench2"></div><div class="tip" id="tip-bench2"></div></div>
+      <p class="foot" id="f-bench2"></p>
+    </div>
+
+    <div class="panel carry">
+      <div class="panel-h"><h2>Is the win real?</h2><span class="tag">Guard metrics</span>
+        <span class="carrytag">In both views</span></div>
+      <p class="cap">A longer trial or a later paywall could buy conversions from people who
+        churn immediately. If that were happening, month-2 renewal would fall. It doesn't.</p>
+      <div class="tblwrap"><table id="t-guard"></table></div>
+      <p class="foot" id="f-guard"></p>
+    </div>
+
+    <div class="callout win">
+      <span class="k">Recommendation</span>
+      <p id="rec-text"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>Why this is different from a chart plus a slide</h2></div>
+      <div class="vs" style="margin-top:6px">
+        <div class="col no">
+          <h3>Chart tool + written analysis</h3>
+          <ul>
+            <li>The number lives in one system and its meaning lives in another.</li>
+            <li>The interpretation is written once, at one moment, and starts aging immediately.</li>
+            <li>A developer reads a paragraph and infers the change.</li>
+            <li>Six weeks later nobody can reconstruct why the change was made.</li>
+          </ul>
+        </div>
+        <div class="col yes">
+          <h3>This dashboard</h3>
+          <ul>
+            <li>The benchmark, the diagnosis, the proposal and the result sit on the same data.</li>
+            <li>Every panel re-derives on filter, so the argument updates when the data does.</li>
+            <li>A developer reads the exact config key and the screen it affects.</li>
+            <li>The reasoning stays attached to the number, permanently.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="foot">Built as one self-contained file from a single atomic cube:
+        <code>cube[arm][week] = {installs, trials, paid, cancels, renewed}</code>. Every panel here
+        derives from that table, in Python at build time and again in JavaScript on every filter,
+        so two panels cannot disagree. The generator re-derives each view twice and refuses to
+        publish on a mismatch.</p>
+    </div>
+  </section>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  <p>Synthetic data · single self-contained HTML file · no chart library, no dependencies, no tracking.</p>
+</div></footer>
+
+<script>
+/* ===========================================================================
+   DATA
+   ======================================================================== */
+const D = /*__DEMO_DATA__*/{};
+
+const KEYS  = D.arms.map(a => a.key);
+const VMETA = {}; D.arms.forEach(a => VMETA[a.key] = a);
+const SLOT  = k => 'var(--s' + VMETA[k].slot + ')';
+const NW    = D.meta.weeks;
+
+const fmtN = n => n.toLocaleString('en-US');
+const fmtP = n => n.toFixed(2) + '%';
+
+/* ===========================================================================
+   CUBE DERIVATIONS — the JS twin of the Python in build_demo_data.py.
+   Every panel goes through these, so no two panels can disagree.
+   ======================================================================== */
+function sliceCube(keys, w0, w1){
+  const out = {installs:0, trials:0, paid:0, renewed:0, cancels:[0,0,0,0]};
+  for (const k of keys){
+    for (let w = w0; w <= w1; w++){
+      const r = D.cube[k][w];
+      if (!r) continue;
+      out.installs += r.installs; out.trials += r.trials;
+      out.paid += r.paid; out.renewed += r.renewed;
+      for (let i = 0; i < 4; i++) out.cancels[i] += r.cancels[i];
+    }
+  }
+  return out;
+}
+function rates(t){
+  return {
+    i2t: t.installs ? 100*t.trials/t.installs : 0,
+    t2p: t.trials ? 100*t.paid/t.trials : 0,
+    i2p: t.installs ? 100*t.paid/t.installs : 0,
+    renew: t.paid ? 100*t.renewed/t.paid : 0
+  };
+}
+
+/* ===========================================================================
+   SVG chart primitives. Hand-rolled: thin marks, hairline grid, direct labels,
+   one y-scale per plot, hover layer on everything with a plot.
+   ======================================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+/* Draw at the container's real width so text keeps its natural size and the plot
+   fills the panel, instead of a fixed viewBox shrinking to fit a narrow column. */
+const chartW = mount => Math.max(320, Math.min(1600, Math.round(mount.clientWidth) || 1000));
+const el = (t, a = {}) => { const n = document.createElementNS(NS, t);
+  for (const k in a) n.setAttribute(k, a[k]); return n; };
+function svgRoot(w, h){
+  const s = el('svg', {class:'chart', viewBox:`0 0 ${w} ${h}`, width:'100%',
+                       height:h, preserveAspectRatio:'xMidYMid meet', role:'img'});
+  return s;
+}
+function niceMax(v){
+  if (v <= 0) return 1;
+  const mag = Math.pow(10, Math.floor(Math.log10(v)));
+  for (const m of [1,2,4,5,8,10]) if (mag*m >= v) return mag*m;
+  return mag*10;
+}
+
+/* ---- shared hover machinery ---------------------------------------------- */
+function attachTip(boxId, tipId){
+  const box = document.getElementById(boxId).parentElement;
+  const tip = document.getElementById(tipId);
+  return {
+    show(html, cx, cy){
+      tip.innerHTML = html; tip.style.opacity = 1; tip.style.visibility = 'visible';
+      const bw = box.clientWidth, tw = tip.offsetWidth;
+      let x = cx + 14; if (x + tw > bw - 4) x = cx - tw - 14;
+      tip.style.left = Math.max(4, x) + 'px';
+      tip.style.top  = Math.max(4, cy - tip.offsetHeight/2) + 'px';
+    },
+    hide(){ tip.style.opacity = 0; tip.style.visibility = 'hidden'; }
+  };
+}
+/* map a viewBox x to a pixel x inside the rendered box */
+const pxScale = (svg, vbW) => svg.getBoundingClientRect().width / vbW;
+
+/* ---- multi-series line chart --------------------------------------------- */
+function lineChart(mountId, tipId, opts){
+  const mount = document.getElementById(mountId);
+  mount.innerHTML = '';
+  const {series, labels, yFmt, yLabel, yMaxHint, tipFmt} = opts;
+  const W = chartW(mount), H = opts.height || 250;
+  const M = {t: 16, r: 74, b: 30, l: 50};
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const svg = svgRoot(W, H);
+
+  let maxV = 0;
+  series.forEach(s => s.points.forEach(p => { if (p != null && p > maxV) maxV = p; }));
+  const yMax = niceMax(Math.max(maxV, yMaxHint || 0) * 1.08);
+  const x = i => M.l + (labels.length === 1 ? iw/2 : i * iw / (labels.length - 1));
+  const y = v => M.t + ih - (v / yMax) * ih;
+
+  /* grid + y ticks */
+  const TICKS = 4;
+  for (let i = 0; i <= TICKS; i++){
+    const v = yMax * i / TICKS, yy = y(v);
+    svg.appendChild(el('line', {class:'gridline', x1:M.l, x2:M.l+iw, y1:yy, y2:yy}));
+    const t = el('text', {class:'tick', x:M.l-8, y:yy+3.5, 'text-anchor':'end'});
+    t.textContent = yFmt(v); svg.appendChild(t);
+  }
+  svg.appendChild(el('line', {class:'axis', x1:M.l, x2:M.l+iw, y1:M.t+ih, y2:M.t+ih}));
+
+  /* optional reference rule — "where we started" */
+  if (opts.rule && opts.rule.value <= yMax){
+    const ry = y(opts.rule.value);
+    svg.appendChild(el('line', {x1:M.l, x2:M.l+iw, y1:ry, y2:ry, stroke:'var(--muted)',
+      'stroke-width':1.5, 'stroke-dasharray':'2 4', opacity:.85}));
+    const rt = el('text', {x:M.l+4, y:ry-6, class:'tick'});
+    rt.textContent = opts.rule.label + ' · ' + opts.rule.value.toFixed(1) + '%';
+    svg.appendChild(rt);
+  }
+
+  /* optional vertical marker — where something changed */
+  if (opts.mark && opts.mark.at != null){
+    const mx = x(opts.mark.at);
+    svg.appendChild(el('line', {x1:mx, x2:mx, y1:M.t, y2:M.t+ih, stroke:'var(--ink-2)',
+      'stroke-width':1.5, 'stroke-dasharray':'4 3', opacity:.9}));
+    const mt = el('text', {x:mx+7, y:M.t+11, class:'lbl', fill:'var(--ink-2)'});
+    mt.textContent = opts.mark.label; svg.appendChild(mt);
+  }
+
+  /* x ticks — thin out on narrow label sets */
+  const step = labels.length > 10 ? 2 : 1;
+  labels.forEach((lb, i) => {
+    if (i % step && i !== labels.length-1) return;
+    const t = el('text', {class:'tick', x:x(i), y:M.t+ih+16, 'text-anchor':'middle'});
+    t.textContent = lb; svg.appendChild(t);
+  });
+  if (yLabel){
+    const t = el('text', {x:2, y:M.t-5, 'text-anchor':'start', class:'lbl'});
+    t.textContent = yLabel; svg.appendChild(t);
+  }
+
+  /* lines, then direct labels at the last live point */
+  const labelSpots = [];
+  series.forEach(s => {
+    let d = '', open = false, lastI = -1;
+    s.points.forEach((p, i) => {
+      if (p == null){ open = false; return; }
+      d += (open ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p).toFixed(1) + ' ';
+      open = true; lastI = i;
+    });
+    if (d) svg.appendChild(el('path', {class:'ln', d, stroke:s.color}));
+    s.points.forEach((p, i) => {
+      if (p == null) return;
+      svg.appendChild(el('circle', {class:'pt', cx:x(i), cy:y(p), r:3, fill:s.color}));
+    });
+    if (lastI >= 0) labelSpots.push({s, x: x(lastI) + 9, yWant: y(s.points[lastI]), yAt: y(s.points[lastI])});
+  });
+
+  /* push overlapping labels apart, then tie each back to its line with a leader */
+  const GAP = 13;
+  labelSpots.sort((a, b) => a.yWant - b.yWant);
+  for (let i = 1; i < labelSpots.length; i++){
+    const prev = labelSpots[i-1], cur = labelSpots[i];
+    if (cur.yAt - prev.yAt < GAP) cur.yAt = prev.yAt + GAP;
+  }
+  const overflow = labelSpots.length ? labelSpots[labelSpots.length-1].yAt - (M.t + ih) : 0;
+  if (overflow > 0) labelSpots.forEach(l => l.yAt -= overflow);
+  labelSpots.forEach(l => {
+    if (Math.abs(l.yAt - l.yWant) > 2){
+      svg.appendChild(el('line', {x1:l.x - 5, y1:l.yWant, x2:l.x - 1, y2:l.yAt,
+        stroke:l.s.color, 'stroke-width':1, opacity:.55}));
+    }
+    const t = el('text', {x:l.x, y:l.yAt + 4, class:'lbl', fill:'var(--ink-2)'});
+    t.textContent = l.s.label; svg.appendChild(t);
+  });
+
+  /* crosshair + tooltip */
+  const cross = el('line', {class:'cross', y1:M.t, y2:M.t+ih, x1:-99, x2:-99});
+  svg.appendChild(cross);
+  const hit = el('rect', {class:'hit', x:M.l, y:M.t, width:iw, height:ih});
+  svg.appendChild(hit);
+  mount.appendChild(svg);
+  const tip = attachTip(mountId, tipId);
+
+  hit.addEventListener('mousemove', ev => {
+    const r = svg.getBoundingClientRect(), sc = r.width / W;
+    const vx = (ev.clientX - r.left) / sc;
+    let i = Math.round((vx - M.l) / (iw / Math.max(1, labels.length-1)));
+    i = Math.max(0, Math.min(labels.length-1, i));
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i));
+    const rows = series.filter(s => s.points[i] != null)
+      .map(s => `<div class="tr"><span><i style="background:${s.color}"></i>${s.label}</span>` +
+                `<b>${tipFmt(s.points[i], s, i)}</b></div>`).join('');
+    tip.show(`<div class="th">${labels[i]}</div>${rows || '<div class="tr">no data</div>'}`,
+             x(i)*sc, (ev.clientY - r.top));
+  });
+  hit.addEventListener('mouseleave', () => { cross.setAttribute('x1',-99); cross.setAttribute('x2',-99); tip.hide(); });
+}
+
+/* ---- horizontal bars (funnel / topics) ------------------------------------ */
+function hBars(mountId, tipId, opts){
+  const mount = document.getElementById(mountId); mount.innerHTML = '';
+  const {rows, colorOf, valFmt, subFmt, tipFmt} = opts;
+  const W = chartW(mount), RH = opts.rowH || 42, M = {t: 8, r: 20, b: 8, l: opts.labelW || 190};
+  const H = M.t + rows.length*RH + M.b;
+  const iw = W - M.l - M.r;
+  const svg = svgRoot(W, H);
+  const max = Math.max(...rows.map(r => r.v));
+  const tip = attachTip(mountId, tipId);
+
+  rows.forEach((r, i) => {
+    const yy = M.t + i*RH, bh = Math.min(22, RH - 16);
+    const bw = max ? Math.max(2, (r.v / max) * iw) : 2;
+    const lab = el('text', {x: M.l - 12, y: yy + bh/2 + 4, 'text-anchor':'end', class:'lbl'});
+    lab.textContent = r.label; svg.appendChild(lab);
+    const rect = el('rect', {class:'bar', x:M.l, y:yy, width:bw, height:bh, fill: colorOf(r, i)});
+    svg.appendChild(rect);
+    const v = el('text', {x: M.l + bw + 9, y: yy + bh/2 + 4, class:'val'});
+    v.textContent = valFmt(r); svg.appendChild(v);
+    if (subFmt){
+      const s = el('text', {x: M.l - 12, y: yy + bh + 13, 'text-anchor':'end', class:'tick'});
+      s.textContent = subFmt(r); svg.appendChild(s);
+    }
+    rect.addEventListener('mousemove', ev => {
+      const bb = svg.getBoundingClientRect(), sc = bb.width / W;
+      tip.show(tipFmt(r), (M.l + bw)*sc, ev.clientY - bb.top);
+    });
+    rect.addEventListener('mouseleave', () => tip.hide());
+  });
+  mount.appendChild(svg);
+}
+
+/* ---- vertical bars (estimate bands) --------------------------------------- */
+function vBars(mountId, tipId, opts){
+  const mount = document.getElementById(mountId); mount.innerHTML = '';
+  const {rows, colorOf, valFmt, tipFmt, yFmt, yLabel} = opts;
+  const W = chartW(mount), H = opts.height || 260, M = {t: 26, r: 16, b: 44, l: 50};
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const svg = svgRoot(W, H);
+  const yMax = niceMax(Math.max(...rows.map(r => r.v)) * 1.15);
+  const bandW = iw / rows.length, bw = Math.min(88, bandW - 18);
+  const y = v => M.t + ih - (v/yMax)*ih;
+  const tip = attachTip(mountId, tipId);
+
+  for (let i = 0; i <= 4; i++){
+    const v = yMax*i/4, yy = y(v);
+    svg.appendChild(el('line', {class:'gridline', x1:M.l, x2:M.l+iw, y1:yy, y2:yy}));
+    const t = el('text', {class:'tick', x:M.l-8, y:yy+3.5, 'text-anchor':'end'});
+    t.textContent = yFmt(v); svg.appendChild(t);
+  }
+  svg.appendChild(el('line', {class:'axis', x1:M.l, x2:M.l+iw, y1:M.t+ih, y2:M.t+ih}));
+  if (yLabel){ const t = el('text', {x:2, y:M.t-11, 'text-anchor':'start', class:'lbl'});
+    t.textContent = yLabel; svg.appendChild(t); }
+
+  rows.forEach((r, i) => {
+    const cx = M.l + i*bandW + bandW/2, h = Math.max(2, (r.v/yMax)*ih);
+    const rect = el('rect', {class:'bar', x:cx-bw/2, y:y(r.v), width:bw, height:h, fill:colorOf(r,i)});
+    svg.appendChild(rect);
+    const v = el('text', {x:cx, y:y(r.v)-8, 'text-anchor':'middle', class:'val'});
+    v.textContent = valFmt(r); svg.appendChild(v);
+    const l = el('text', {x:cx, y:M.t+ih+17, 'text-anchor':'middle', class:'lbl'});
+    l.textContent = r.label; svg.appendChild(l);
+    if (opts.subFmt){
+      const sb = el('text', {x:cx, y:M.t+ih+32, 'text-anchor':'middle', class:'tick'});
+      sb.textContent = opts.subFmt(r); svg.appendChild(sb);
+    }
+    rect.addEventListener('mousemove', ev => {
+      const bb = svg.getBoundingClientRect(), sc = bb.width/W;
+      tip.show(tipFmt(r), cx*sc, ev.clientY - bb.top);
+    });
+    rect.addEventListener('mouseleave', () => tip.hide());
+  });
+  mount.appendChild(svg);
+}
+
+/* ===========================================================================
+   MODE A — the standard view. Fixed, unfiltered, exactly what the tool gives.
+   ======================================================================== */
+function renderModeA(){
+  const P = D.baseline_pre;
+
+  /* funnel */
+  const ORD = ['var(--ord6)','var(--ord5)','var(--ord4)','var(--ord3)'];
+  const f0 = D.funnel[0].n;
+  hBars('c-funnel', 'tip-funnel', {
+    rows: D.funnel.map((s, i) => ({label:s.step, v:s.n, n:s.n, i,
+      prev: i ? D.funnel[i-1].n : null})),
+    rowH: 48, labelW: 190,
+    colorOf: (r, i) => ORD[i],
+    valFmt: r => fmtN(r.n),
+    subFmt: r => r.prev == null ? '' : (100*r.n/r.prev).toFixed(1) + '% of previous',
+    tipFmt: r => `<div class="th">${r.label}</div>` +
+      `<div class="tr"><span>Users</span><b>${fmtN(r.n)}</b></div>` +
+      `<div class="tr"><span>Of installs</span><b>${(100*r.n/f0).toFixed(2)}%</b></div>` +
+      (r.prev == null ? '' : `<div class="tr"><span>Of previous</span><b>${(100*r.n/r.prev).toFixed(1)}%</b></div>`)
+  });
+
+  /* weekly trial-to-paid, baseline arm only — the pre-experiment picture */
+  const wk = D.weekly.baseline;
+  lineChart('c-a-trend', 'tip-a-trend', {
+    labels: D.week_labels,
+    series: [{label:'Trial→paid', color:'var(--s1)', points: wk.map(r => r ? r.t2p : null)}],
+    yFmt: v => v.toFixed(0) + '%',
+    yLabel: 'Trial-to-paid',
+    tipFmt: p => p.toFixed(2) + '%'
+  });
+
+  /* trial starts per week */
+  vBars('c-a-vol', 'tip-a-vol', {
+    height: 236,
+    rows: D.week_labels.map((lb, w) => {
+      const r = wk[w] || {trials:0, installs:0, t2p:0};
+      return {label: lb, v: r.trials, trials: r.trials, installs: r.installs, t2p: r.t2p};
+    }),
+    colorOf: () => 'var(--ord4)',
+    valFmt: r => fmtN(r.v),
+    yFmt: v => fmtN(Math.round(v)),
+    yLabel: 'Trial starts',
+    tipFmt: r => `<div class="th">Week of ${r.label}</div>` +
+      `<div class="tr"><span>Trial starts</span><b>${fmtN(r.trials)}</b></div>` +
+      `<div class="tr"><span>Installs</span><b>${fmtN(r.installs)}</b></div>` +
+      `<div class="tr"><span>Trial→paid</span><b>${r.t2p.toFixed(2)}%</b></div>`
+  });
+
+  /* summary table */
+  document.getElementById('t-a').innerHTML =
+    '<thead><tr><th>Metric</th><th class="n">Value</th><th class="n">Users</th></tr></thead><tbody>' +
+    `<tr><td>Installs</td><td class="n">—</td><td class="n">${fmtN(P.installs)}</td></tr>` +
+    `<tr><td>Install → trial</td><td class="n"><b>${P.i2t.toFixed(2)}%</b></td><td class="n">${fmtN(P.trials)}</td></tr>` +
+    `<tr><td>Trial → paid</td><td class="n"><b>${P.t2p.toFixed(2)}%</b></td><td class="n">${fmtN(P.paid)}</td></tr>` +
+    `<tr><td>Install → paid</td><td class="n"><b>${P.i2p.toFixed(2)}%</b></td><td class="n">${fmtN(P.paid)}</td></tr>` +
+    `<tr><td>Month-2 renewal</td><td class="n"><b>${P.renew.toFixed(1)}%</b></td><td class="n">${fmtN(P.renewed)}</td></tr>` +
+    '</tbody>';
+
+  document.getElementById('f-a').innerHTML =
+    `Reading: trial-to-paid is <b>${P.t2p.toFixed(1)}%</b> and holding steady across ` +
+    `${fmtN(P.trials)} trial starts. Nothing is broken. Everything above is available out of the ` +
+    `box in any event-analytics tool — and it is where most reporting stops.`;
+
+  document.getElementById('hero-n').textContent =
+    `${fmtN(P.trials)} trial starts over ${P.weeks} weeks.`;
+  document.getElementById('hero-rate').textContent = P.t2p.toFixed(1) + '%';
+}
+
+/* ===========================================================================
+   The benchmark strip — a range per trial-length band, with "you are here"
+   pins. This is the panel that turns a number into a position.
+   ======================================================================== */
+function benchStrip(mountId, tipId, markers){
+  const mount = document.getElementById(mountId); mount.innerHTML = '';
+  const B = D.bench, rows = B.bands;
+  const W = chartW(mount), RH = 62, M = {t: 34, r: 26, b: 30, l: Math.min(210, W*0.28)};
+  const H = M.t + rows.length*RH + M.b;
+  const iw = W - M.l - M.r;
+  const svg = svgRoot(W, H);
+  const x = v => M.l + (v / B.scale_max) * iw;
+  const tip = attachTip(mountId, tipId);
+
+  /* scale */
+  for (let v = 0; v <= B.scale_max; v += 10){
+    svg.appendChild(el('line', {class:'gridline', x1:x(v), x2:x(v), y1:M.t-8, y2:M.t + rows.length*RH - 12}));
+    const t = el('text', {class:'tick', x:x(v), y:M.t + rows.length*RH + 4, 'text-anchor':'middle'});
+    t.textContent = v + '%'; svg.appendChild(t);
+  }
+  const cap = el('text', {x:M.l, y:M.t-18, class:'lbl'});
+  cap.textContent = B.metric + ' — typical range'; svg.appendChild(cap);
+
+  markers = markers || [];
+  rows.forEach((b, i) => {
+    const cy = M.t + i*RH + 16;
+    const lab = el('text', {x:M.l-16, y:cy+4, 'text-anchor':'end', class:'lbl'});
+    lab.textContent = b.label; svg.appendChild(lab);
+
+    /* the middle-half range */
+    const bar = el('rect', {x:x(b.q1), y:cy-9, width:Math.max(2, x(b.q3)-x(b.q1)), height:18,
+      rx:4, fill:'var(--band)'});
+    svg.appendChild(bar);
+    /* median tick */
+    svg.appendChild(el('line', {x1:x(b.median), x2:x(b.median), y1:cy-13, y2:cy+13,
+      stroke:'var(--ink-2)', 'stroke-width':2}));
+    const near = markers.some(mk => mk.row === i && Math.abs(x(mk.value) - x(b.median)) < 64);
+    const mv = el('text', {x:x(b.median) + (near ? 46 : 0), y:cy - (near ? 30 : 19),
+      'text-anchor':'middle', class:'tick'});
+    mv.textContent = 'typical ' + b.median.toFixed(0) + '%'; svg.appendChild(mv);
+
+    bar.addEventListener('mousemove', ev => {
+      const bb = svg.getBoundingClientRect(), sc = bb.width/W;
+      tip.show(`<div class="th">${b.label}</div>` +
+        `<div class="tr"><span>Lower end</span><b>${b.q1.toFixed(0)}%</b></div>` +
+        `<div class="tr"><span>Typical</span><b>${b.median.toFixed(0)}%</b></div>` +
+        `<div class="tr"><span>Upper end</span><b>${b.q3.toFixed(0)}%</b></div>`,
+        x((b.q1+b.q3)/2)*sc, ev.clientY - bb.top);
+    });
+    bar.addEventListener('mouseleave', () => tip.hide());
+  });
+
+  /* the pins */
+  markers.forEach(mk => {
+    const cy = M.t + mk.row*RH + 16;
+    const px = x(mk.value);
+    const g = el('g', {});
+    g.appendChild(el('line', {x1:px, x2:px, y1:cy-22, y2:cy+22, stroke:mk.color, 'stroke-width':2.5}));
+    g.appendChild(el('circle', {cx:px, cy:cy-22, r:5, fill:mk.color, stroke:'var(--surface)', 'stroke-width':2}));
+    const t = el('text', {x:px, y:cy+38, 'text-anchor':'middle', class:'val', fill:mk.color});
+    t.textContent = mk.label + ' ' + mk.value.toFixed(1) + '%';
+    g.appendChild(t);
+    svg.appendChild(g);
+    g.addEventListener('mousemove', ev => {
+      const bb = svg.getBoundingClientRect(), sc = bb.width/W;
+      tip.show(`<div class="th">${mk.full || mk.label}</div>` +
+        `<div class="tr"><span>Trial→paid</span><b>${mk.value.toFixed(2)}%</b></div>` +
+        (mk.sub ? `<div class="tr"><span>${mk.sub}</span><b></b></div>` : ''),
+        px*sc, ev.clientY - bb.top);
+    });
+    g.addEventListener('mouseleave', () => tip.hide());
+  });
+
+  mount.appendChild(svg);
+}
+
+/* ===========================================================================
+   MODE B — the three stages.
+   ======================================================================== */
+const state = { keys: new Set(D.arms.map(a => a.key)), view: 'chart' };
+
+function buildFilters(){
+  const pv = document.getElementById('p-arm');
+  pv.innerHTML = `<button class="pill" data-k="__all" aria-pressed="true">All</button>` +
+    D.arms.map(a => `<button class="pill" data-k="${a.key}" aria-pressed="true">` +
+      `<span class="sw" style="background:${SLOT(a.key)}"></span>${a.short}</button>`).join('');
+  pv.addEventListener('click', ev => {
+    const b = ev.target.closest('.pill'); if (!b) return;
+    const k = b.dataset.k;
+    if (k === '__all') state.keys = new Set(KEYS);
+    else {
+      if (state.keys.has(k)) state.keys.delete(k); else state.keys.add(k);
+      if (!state.keys.size) state.keys = new Set(KEYS);
+    }
+    syncFilters(); renderStage3();
+  });
+
+  const pvw = document.getElementById('p-view');
+  pvw.addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    state.view = b.dataset.v;
+    pvw.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    renderStage3();
+  });
+  syncFilters();
+}
+function syncFilters(){
+  document.querySelectorAll('#p-arm .pill').forEach(p => {
+    const k = p.dataset.k;
+    p.setAttribute('aria-pressed', k === '__all' ? (state.keys.size === KEYS.length) : state.keys.has(k));
+  });
+}
+const activeKeys = () => KEYS.filter(k => state.keys.has(k));
+
+/* ---------------- stage 1 ------------------------------------------------- */
+function renderStage1(){
+  const P = D.baseline_pre;
+  benchStrip('c-bench', 'tip-bench', [
+    {row:0, value:P.t2p, color:'var(--s1)', label:'Us', full:'Generic Fitness App — 3-day trial'}
+  ]);
+
+  const shortBand = D.bench.bands[0], longBand = D.bench.bands[2];
+  document.getElementById('f-bench').innerHTML =
+    `We are at <b>${P.t2p.toFixed(1)}%</b> against a typical <b>${shortBand.median.toFixed(0)}%</b> ` +
+    `for 3-day trials — so the funnel is doing its job. The row that matters is the bottom one: ` +
+    `apps running two-week trials sit around <b>${longBand.median.toFixed(0)}%</b>. ` +
+    `We are not underperforming our trial length. <b>Our trial length is the ceiling.</b>`;
+
+  document.getElementById('tiles-stage1').innerHTML = `
+    <div class="tile"><div class="tl">Trial → paid</div><div class="tv">${P.t2p.toFixed(1)}%</div>
+      <div class="ts">typical for a 3-day trial</div></div>
+    <div class="tile"><div class="tl">Typical at 14+ days</div><div class="tv">${longBand.median.toFixed(0)}%</div>
+      <div class="ts">the band we are not in</div></div>
+    <div class="tile warn"><div class="tl">Cancel on day 0</div><div class="tv">${P.d0.toFixed(0)}%</div>
+      <div class="ts">before the app is used once</div></div>
+    <div class="tile"><div class="tl">Trial starts</div><div class="tv">${fmtN(P.trials)}</div>
+      <div class="ts">over ${P.weeks} weeks</div></div>`;
+
+  const days = D.cancel_days;
+  const tot = P.cancels.reduce((a,b) => a+b, 0);
+  vBars('c-cancel', 'tip-cancel', {
+    height: 250,
+    rows: days.map((d, i) => ({label:d, v: 100*P.cancels[i]/tot, n:P.cancels[i], share:100*P.cancels[i]/tot})),
+    colorOf: (r, i) => i === 0 ? 'var(--crit)' : 'var(--ord3)',
+    valFmt: r => r.share.toFixed(1) + '%',
+    yFmt: v => v.toFixed(0) + '%',
+    yLabel: 'Share of cancellations',
+    tipFmt: r => `<div class="th">${r.label}</div>` +
+      `<div class="tr"><span>Cancellations</span><b>${fmtN(r.n)}</b></div>` +
+      `<div class="tr"><span>Share</span><b>${r.share.toFixed(1)}%</b></div>`
+  });
+
+  const cb = D.bench.cancel_bands;
+  document.getElementById('f-cancel').innerHTML =
+    `<b>${P.d0.toFixed(0)}%</b> of cancellations happen on day zero — before a single workout. ` +
+    `That is what a 3-day trial looks like everywhere: around <b>${cb[0].d0.toFixed(0)}%</b> for ` +
+    `3-day trials, falling to roughly <b>${cb[3].d0.toFixed(0)}%</b> at 30 days. These are not people ` +
+    `who tried the product and declined. They are people who were asked to decide before there was ` +
+    `anything to decide about.`;
+
+  document.getElementById('hyp-text').innerHTML =
+    `The trial is being cancelled before the product has done anything, so the constraint is not ` +
+    `the app — it is <b>how soon we ask</b> and <b>how long we give them</b>. Two changes follow ` +
+    `directly: give the trial enough room to reach a first workout, and stop asking for the ` +
+    `decision at the moment of least context. Each is testable on its own.`;
+}
+
+/* ---------------- stage 2 ------------------------------------------------- */
+function mockPaywall(days, highlight){
+  return `<div class="phone"><div class="notch"></div><div class="scr">
+    <div class="ttl">Unlock your plan</div>
+    <div><div class="amtl">Free trial</div>
+      <div class="amt${highlight ? ' hl' : ''}">${days} days</div></div>
+    <div class="stats">
+      <div class="st"><div class="sl">Then</div><div class="sv">$9.99/mo</div></div>
+      <div class="st"><div class="sl">Cancel</div><div class="sv">Anytime</div></div>
+    </div>
+    <div class="fit ok">✓ Full access to every workout and plan</div>
+    <div class="cta">Start my ${days}-day free trial →</div>
+  </div></div>`;
+}
+function flowRail(steps, markIdx){
+  return '<div class="rail">' + steps.map((s, i) =>
+    `<span class="rstep${i === markIdx ? ' mark' : ''}">${s}</span>`).join('<span class="rarrow">→</span>') + '</div>';
+}
+function renderStage2(){
+  const props = D.arms.filter(a => a.key !== 'baseline');
+  document.getElementById('changes').innerHTML = props.map(a => {
+    const visual = a.key === 'trial14'
+      ? `<div class="ba"><div class="bacol"><span class="balbl">Before</span>${mockPaywall(3, false)}</div>
+         <div class="baarrow">→</div>
+         <div class="bacol"><span class="balbl">After</span>${mockPaywall(14, true)}</div></div>`
+      : `<div class="bastack">
+           <div><span class="balbl">Before</span>${flowRail(['Install','<b>Paywall</b>','Onboarding','First workout'], 1)}</div>
+           <div><span class="balbl">After</span>${flowRail(['Install','Onboarding','First workout','<b>Paywall</b>'], 3)}</div>
+           <p class="xs" style="margin-top:2px">Same paywall screen, same 3-day trial — only the
+             moment it appears changes.</p>
+         </div>`;
+    return `<div class="changecard" style="--arm:${SLOT(a.key)}">
+      <div class="chead"><span class="cbadge">${a.short}</span><h3>${a.name.replace(/^Change . — /, '')}</h3></div>
+      <div class="cbody">
+        <div class="cfield"><span class="cfl">Why</span><p>${a.hypothesis}</p></div>
+        <div class="cfield"><span class="cfl">The change</span><p>${a.change}</p></div>
+        <div class="cfield"><span class="cfl">Where</span><p>${a.where}</p></div>
+        <div class="cfield"><span class="cfl">What we expect</span><p>${a.expect}</p></div>
+      </div>
+      <div class="cvisual">${visual}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------------- stage 3 ------------------------------------------------- */
+function renderStage3(){
+  const keys = activeKeys();
+  const base = VMETA.baseline;
+  const P = D.baseline_pre;
+  const chart = state.view === 'chart';
+
+  /* result tiles always show all three — this is the headline, not a filtered view */
+  document.getElementById('tiles-result').innerHTML = D.arms.map(a => {
+    const isBase = a.key === 'baseline';
+    return `<div class="tile${isBase ? '' : ' good'}">
+      <div class="tl"><span class="swatch" style="background:${SLOT(a.key)}"></span>${a.short}</div>
+      <div class="tv">${a.t2p.toFixed(1)}%</div>
+      <div class="ts">${isBase ? 'control arm · test window' :
+        `<b>+${a.lift_pp.toFixed(1)} pp</b> · ${a.lift_rel.toFixed(0)}% relative`}</div></div>`;
+  }).join('');
+
+  /* aggregates stay on the test window so the arms compare like for like */
+  const t = sliceCube(keys, D.meta.split_week, NW - 1);
+  document.getElementById('f-scope').innerHTML =
+    `${keys.length} of ${KEYS.length} arms · since the change shipped · ` +
+    `<b style="color:var(--ink-2)">${fmtN(t.trials)}</b> trials, <b style="color:var(--ink-2)">${fmtN(t.paid)}</b> paid`;
+
+  document.getElementById('lg-b').innerHTML = keys.map(k =>
+    `<span class="k"><i style="background:${SLOT(k)}"></i>${VMETA[k].short}</span>`).join('') +
+    `<span class="k"><i style="background:var(--muted);opacity:.5"></i>Where we started (${P.t2p.toFixed(1)}%)</span>`;
+
+  /* the full timeline: baseline runs from week 1, the arms join partway through,
+     so the reader watches the change land rather than being shown only the after */
+  const wIdx = [];
+  for (let w = 0; w < NW; w++) wIdx.push(w);
+  const labels = wIdx.map(w => D.week_labels[w]);
+  const per = {};
+  keys.forEach(k => { per[k] = wIdx.map(w => D.weekly[k][w]); });
+
+  document.getElementById('c-b-trend').hidden = !chart;
+  document.getElementById('b-table').hidden = chart;
+  if (chart){
+    lineChart('c-b-trend', 'tip-b-trend', {
+      labels, height: 300,
+      rule: {value: P.t2p, label: 'Where we started'},
+      mark: {at: D.meta.split_week, label: '← baseline   ·   changes shipped →'},
+      series: keys.map(k => ({label: VMETA[k].short, color: SLOT(k),
+        points: per[k].map(r => r ? r.t2p : null)})),
+      yFmt: v => v.toFixed(0) + '%',
+      yLabel: 'Trial-to-paid',
+      tipFmt: p => p.toFixed(2) + '%'
+    });
+  } else {
+    document.getElementById('t-b').innerHTML =
+      '<thead><tr><th>Week</th>' + keys.map(k =>
+        `<th class="n"><span class="swatch" style="background:${SLOT(k)}"></span>${VMETA[k].short}</th>`).join('') +
+      '</tr></thead><tbody>' +
+      wIdx.map((w, i) => '<tr><td>' + D.week_labels[w] + '</td>' +
+        keys.map(k => { const r = per[k][i];
+          return '<td class="n">' + (r ? `${r.t2p.toFixed(2)}% <span class="xs">· ${fmtN(r.trials)} trials</span>` : '—') + '</td>';
+        }).join('') + '</tr>').join('') +
+      '</tbody>';
+  }
+
+  const best = D.arms.filter(a => a.key !== 'baseline').reduce((a, b) => b.t2p > a.t2p ? b : a);
+  document.getElementById('f-btrend').innerHTML =
+    `Both arms sit above the starting line in every week they have run. <b>${best.short}</b> leads at ` +
+    `<b>${best.t2p.toFixed(1)}%</b>, and the gap is stable rather than a single spike — which is the ` +
+    `difference between a result and a coincidence. Note the control arm ran at ` +
+    `<b>${base.t2p.toFixed(1)}%</b> over this window against <b>${P.t2p.toFixed(1)}%</b> before the ` +
+    `test — ordinary week-to-week drift, and exactly why the comparison is made against a live ` +
+    `control rather than against last month.`;
+
+  /* the same benchmark strip, now with the arms on it */
+  benchStrip('c-bench2', 'tip-bench2', [
+    {row:0, value:P.t2p, color:'var(--muted)', label:'Was', full:'Where we started — 3-day trial'},
+    {row:2, value:VMETA.trial14.t2p, color:SLOT('trial14'), label:'A', full:'Change A — 14-day trial'},
+    {row:0, value:VMETA.latepay.t2p, color:SLOT('latepay'), label:'B', full:'Change B — paywall after onboarding'}
+  ]);
+  const longBand = D.bench.bands[2];
+  document.getElementById('f-bench2').innerHTML =
+    `Change A moves us into the two-week band and lands at <b>${VMETA.trial14.t2p.toFixed(1)}%</b>, ` +
+    `against a typical <b>${longBand.median.toFixed(0)}%</b> there — so there is still room, and we now ` +
+    `know which room. Change B stays on a 3-day trial and reaches <b>${VMETA.latepay.t2p.toFixed(1)}%</b>, ` +
+    `well above what that trial length usually returns. Different mechanisms, and nothing about them ` +
+    `is mutually exclusive.`;
+
+  /* guard metrics */
+  document.getElementById('t-guard').innerHTML =
+    '<thead><tr><th>Arm</th><th class="n">Trial→paid</th><th class="n">Install→trial</th>' +
+    '<th class="n">Install→paid</th><th class="n">Month-2 renewal</th><th class="n">Day-0 cancels</th>' +
+    '</tr></thead><tbody>' +
+    D.arms.map(a => `<tr><td><span class="swatch" style="background:${SLOT(a.key)}"></span>${a.short}` +
+      `<div class="xs">${a.label}</div></td>` +
+      `<td class="n"><b>${a.t2p.toFixed(2)}%</b></td><td class="n">${a.i2t.toFixed(2)}%</td>` +
+      `<td class="n">${a.i2p.toFixed(2)}%</td><td class="n">${a.renew.toFixed(1)}%</td>` +
+      `<td class="n">${a.d0.toFixed(1)}%</td></tr>`).join('') + '</tbody>';
+
+  const renews = D.arms.map(a => a.renew);
+  const spread = (Math.max(...renews) - Math.min(...renews)).toFixed(1);
+  document.getElementById('f-guard').innerHTML =
+    `Month-2 renewal moves by <b>${spread} pp</b> across all three arms — flat. The extra subscribers ` +
+    `behave like the existing ones, so the lift is real revenue rather than borrowed. Change B also ` +
+    `lifts install→trial from <b>${base.i2t.toFixed(1)}%</b> to <b>${VMETA.latepay.i2t.toFixed(1)}%</b>, ` +
+    `because fewer people bounce off a paywall they meet before the app.`;
+
+  document.getElementById('rec-text').innerHTML =
+    `<b>Ship Change A.</b> It is one product setting, it produces the larger lift ` +
+    `(<b>+${VMETA.trial14.lift_pp.toFixed(1)} pp</b>, ${VMETA.trial14.lift_rel.toFixed(0)}% relative), and it ` +
+    `moves us into a trial length where the ceiling is materially higher. <b>Then test B on top of it</b> — ` +
+    `it works through a different mechanism (context before the ask, not time to decide) and independently ` +
+    `lifts trial starts, so the two are additive rather than competing. Next question for the dashboard: ` +
+    `does a 14-day trial with a late paywall beat either alone.`;
+}
+
+function renderModeB(){ renderStage1(); renderStage2(); renderStage3(); }
+
+/* ===========================================================================
+   Mode switching, theme, boot
+   ======================================================================== */
+const NOTES = {
+  a: 'What a standard event-analytics tool gives you out of the box — no extra pipeline, no reconstruction. Read it, then flip the switch.',
+  b: 'Same events, one reconstructed column, one atomic cube. Every filter re-derives every panel from that one table.'
+};
+let curMode = null, animating = false;
+
+function moveThumb(){
+  const btn = document.getElementById(curMode === 'b' ? 'tab-b' : 'tab-a');
+  const thumb = document.getElementById('seg-thumb');
+  if (!btn || !thumb) return;
+  thumb.style.width = btn.offsetWidth + 'px';
+  thumb.style.transform = 'translateX(' + (btn.offsetLeft - 4) + 'px)';
+}
+
+/* render without animating — boot, resize, theme change */
+function paint(which){
+  const a = which === 'a';
+  document.getElementById('mode-a').hidden = !a;
+  document.getElementById('mode-b').hidden = a;
+  document.getElementById('tab-a').setAttribute('aria-selected', a);
+  document.getElementById('tab-b').setAttribute('aria-selected', !a);
+  document.getElementById('switch-note').textContent = a ? NOTES.a : NOTES.b;
+  curMode = which;
+  if (a) renderModeA(); else renderModeB();
+  moveThumb();
+}
+
+/* The toggle IS the wipe: a line travels across the content area and the new
+   view is revealed behind it. Both modes are stacked and clipped while it runs. */
+function setMode(which){
+  if (which === curMode || animating) return;
+  if (curMode === null || matchMedia('(prefers-reduced-motion: reduce)').matches){
+    paint(which); return;
+  }
+  const fwd  = which === 'b';            /* 1 -> 2 wipes left to right */
+  const host = document.querySelector('.modes');
+  const out  = document.getElementById('mode-' + curMode);
+  const inc  = document.getElementById('mode-' + which);
+  const line = document.getElementById('wipeline');
+  animating = true;
+
+  /* the switch is sticky, so it can be clicked from anywhere on the page —
+     bring the content area into view first or the wipe happens off-screen */
+  const HEADER = 132;
+  const rectTop = host.getBoundingClientRect().top;
+  if (rectTop < HEADER - 4 || rectTop > innerHeight * 0.5){
+    scrollTo({top: host.offsetTop - HEADER, behavior: 'smooth'});
+    setTimeout(() => run(), 380);
+  } else run();
+
+  function run(){
+
+    /* render the incoming view first so the reveal shows real content */
+    inc.hidden = false;
+    if (which === 'a') renderModeA(); else renderModeB();
+
+    /* hold the frame at what the viewer can actually see, so nothing jumps */
+    const top = host.getBoundingClientRect().top;
+    const frame = Math.max(360, Math.min(out.offsetHeight, innerHeight - Math.max(top, 0) - 8));
+    host.style.height = frame + 'px';
+    host.classList.add('wiping');
+    document.getElementById('wipeknob').style.top = Math.round(frame/2) + 'px';
+
+    document.getElementById('tab-a').setAttribute('aria-selected', which === 'a');
+    document.getElementById('tab-b').setAttribute('aria-selected', which === 'b');
+    document.getElementById('switch-note').textContent = which === 'a' ? NOTES.a : NOTES.b;
+    curMode = which;
+    moveThumb();
+
+    const DUR = 1050;
+    const t0 = performance.now();
+    const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;   /* easeInOutCubic */
+
+    const step = now => {
+      const p = Math.min(1, (now - t0) / DUR);
+      const e = ease(p);
+      const pct = fwd ? e*100 : 100 - e*100;      /* the line's position, 0..100 */
+      /* incoming occupies the swept side; outgoing keeps the rest */
+      if (fwd){
+        inc.style.clipPath = 'inset(0 ' + (100-pct) + '% 0 0)';
+        out.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
+      } else {
+        inc.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
+        out.style.clipPath = 'inset(0 ' + (100-pct) + '% 0 0)';
+      }
+      line.style.left = pct + '%';
+      if (p < 1) requestAnimationFrame(step);
+      else finish();
+    };
+
+    const finish = () => {
+      host.classList.remove('wiping');
+      host.style.height = '';
+      out.hidden = true;
+      out.style.clipPath = ''; inc.style.clipPath = '';
+      line.style.left = '';
+      animating = false;
+    };
+    requestAnimationFrame(step);
+  }
+}
+document.getElementById('tab-a').addEventListener('click', () => setMode('a'));
+document.getElementById('tab-b').addEventListener('click', () => setMode('b'));
+
+document.getElementById('theme').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const sysDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const next = cur ? (cur === 'dark' ? 'light' : 'dark') : (sysDark ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', next);
+  paint(curMode);
+});
+
+
+buildFilters();
+paint('a');
+
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => {
+  if (!animating) paint(curMode); }, 180); });
+</script>
+</body>
+</html>
