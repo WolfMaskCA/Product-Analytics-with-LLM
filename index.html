@@ -375,6 +375,9 @@ select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
 .fl-btn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;
   font:inherit;font-size:13px;font-weight:660;padding:8px 18px;border-radius:9px;cursor:pointer}
 .fl-btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--rule)}
+.fl-btn.step{background:transparent;color:var(--accent);border-color:var(--accent)}
+.fl-btn:disabled{opacity:.4;cursor:default}
+.fl-btn:disabled:hover{opacity:.4}
 .fl-btn:hover{opacity:.86}
 .fl-ticks{display:flex;gap:4px;flex:1;min-width:140px}
 .fl-tick{height:4px;flex:1;background:var(--rule);border-radius:2px;transition:background .3s ease}
@@ -761,6 +764,7 @@ footer p + p{margin-top:8px}
 
     <div class="fl-transport">
       <button class="fl-btn" id="fl-play">Play</button>
+      <button class="fl-btn step" id="fl-next">Next &rsaquo;</button>
       <button class="fl-btn ghost" id="fl-reset">Restart</button>
       <div class="fl-ticks" id="fl-ticks"></div>
       <div class="fl-count" id="fl-count">0 / 9</div>
@@ -1730,6 +1734,7 @@ function renderModeC(){
   });
   document.getElementById('fl-play').textContent =
     flPlaying ? 'Pause' : (flStep >= FLOW.length ? 'Play again' : 'Play');
+  document.getElementById('fl-next').disabled = flStep >= FLOW.length;
 }
 
 function flStop(){ flPlaying = false; clearInterval(flTimer); renderModeC(); }
@@ -1747,6 +1752,12 @@ function flStart(){
 }
 
 document.getElementById('fl-play').addEventListener('click', () => flPlaying ? flStop() : flStart());
+/* stepping takes over from playback — talk through a step, then advance */
+document.getElementById('fl-next').addEventListener('click', () => {
+  if (flPlaying) { flPlaying = false; clearInterval(flTimer); }
+  if (flStep < FLOW.length) flStep++;
+  renderModeC();
+});
 document.getElementById('fl-reset').addEventListener('click', () => { flStep = 0; flStop(); });
 document.getElementById('mode-c').addEventListener('click', e => {
   const row = e.target.closest('.fl-row');
