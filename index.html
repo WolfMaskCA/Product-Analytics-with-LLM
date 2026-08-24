@@ -391,8 +391,10 @@ select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
 @media (max-width:620px){.fl-lb.r{border-left:0;border-top:1px solid var(--rule)}}
 .fl-row{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.45;
   color:var(--ink-2);padding:6px 7px;border-radius:6px;border:0;background:none;text-align:left;
-  width:100%;cursor:pointer;font-family:inherit;opacity:0;transform:translateY(5px);
-  animation:flpop .32s ease forwards}
+  width:100%;cursor:pointer;font-family:inherit;opacity:1}
+/* the log is rebuilt on every tick, so only the newest row may animate —
+   animating all of them leaves the whole list permanently mid-fade */
+.fl-row.fresh{opacity:0;transform:translateY(5px);animation:flpop .32s ease forwards}
 @keyframes flpop{to{opacity:1;transform:translateY(0)}}
 .fl-row:hover{background:var(--surface-2)}
 .fl-row .i{color:var(--muted);font-variant-numeric:tabular-nums;flex:none;font-weight:660}
@@ -1705,7 +1707,7 @@ function renderModeC(){
     const st = FLOW[i];
     const to = (st.s === 'r') ? R : L, other = (st.s === 'r') ? L : R;
     const b = document.createElement('button');
-    b.className = 'fl-row' + (i === flStep - 1 ? ' now' : '') + (st.s === 'x' ? ' x' : '');
+    b.className = 'fl-row' + (i === flStep - 1 ? ' now fresh' : '') + (st.s === 'x' ? ' x' : '');
     b.dataset.i = i;
     b.innerHTML = '<span class="i">' + String(i + 1).padStart(2, '0') + '</span><span>' + st.t + '</span>';
     to.appendChild(b);
