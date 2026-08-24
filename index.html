@@ -337,6 +337,71 @@ select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
   background:var(--surface);color:var(--ink-2);font-weight:600}
 
 
+/* ---------- mode C — pipeline / trust boundary ---------- */
+.flowgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1080px){.flowgrid{grid-template-columns:1fr}}
+.flowsvg{display:block;width:100%;min-width:600px;height:auto}
+.flowscroll{overflow-x:auto}
+.fl-zone{fill:none;stroke:var(--axis);stroke-width:1.5}
+.fl-zlabel{font-size:11px;letter-spacing:.14em;fill:var(--muted);text-transform:uppercase;font-weight:680}
+.fl-gutter{stroke:var(--axis);stroke-width:1.5;stroke-dasharray:3 6}
+.fl-node rect{fill:var(--surface-2);stroke:var(--axis);stroke-width:1.5;
+  transition:fill .3s ease,stroke .3s ease,stroke-width .3s ease}
+.fl-node text{fill:var(--ink);font-size:13px;font-weight:640}
+.fl-node text.s{fill:var(--muted);font-size:11.5px;font-weight:500}
+.fl-node.on rect{fill:var(--surface);stroke:var(--accent);stroke-width:2.5}
+.fl-node.cloud.on rect{stroke:var(--muted)}
+.fl-edge{stroke:var(--axis);fill:none;stroke-width:2;transition:stroke .3s ease,stroke-width .3s ease}
+.fl-edge.thick{stroke-width:3.5}
+.fl-edge.on{stroke:var(--accent);stroke-width:4}
+.fl-cross{stroke:var(--s2);fill:none;stroke-width:3;opacity:.42;
+  transition:opacity .25s ease,stroke-width .25s ease}
+.fl-cross.on{opacity:1;stroke-width:5;stroke-dasharray:9 7;animation:flmarch 1s linear infinite}
+@keyframes flmarch{to{stroke-dashoffset:-32}}
+.fl-hit{fill:none;stroke:transparent;stroke-width:30;cursor:help}
+.fl-lab{font-size:11px;fill:var(--ink-2);font-weight:600}
+.fl-never{font-size:11px;fill:var(--muted);font-weight:500}
+.fl-never .h{fill:var(--s2);font-weight:700}
+.fl-holder{position:relative}
+.fl-tip{position:absolute;z-index:30;background:var(--ink);color:var(--plane);border-radius:9px;
+  padding:11px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11.5px;line-height:1.6;max-width:290px;pointer-events:none;white-space:pre-wrap;
+  opacity:0;transform:translateY(4px);transition:opacity .16s ease,transform .16s ease}
+.fl-tip.on{opacity:1;transform:translateY(0)}
+.fl-tip b{color:var(--s2);display:block;margin-bottom:5px;font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;font-family:inherit}
+.fl-transport{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.fl-btn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;
+  font:inherit;font-size:13px;font-weight:660;padding:8px 18px;border-radius:9px;cursor:pointer}
+.fl-btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--rule)}
+.fl-btn:hover{opacity:.86}
+.fl-ticks{display:flex;gap:4px;flex:1;min-width:140px}
+.fl-tick{height:4px;flex:1;background:var(--rule);border-radius:2px;transition:background .3s ease}
+.fl-tick.done{background:var(--accent)}
+.fl-tick.now{background:var(--s2)}
+.fl-count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:640}
+.fl-log{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);
+  border-radius:12px;overflow:hidden;background:var(--surface)}
+@media (max-width:620px){.fl-log{grid-template-columns:1fr}}
+.fl-lh{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:680;
+  padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.fl-lh.l{color:var(--accent)} .fl-lh.r{color:var(--muted)}
+.fl-lb{padding:9px 11px 14px;display:flex;flex-direction:column;gap:2px}
+.fl-lb.r{border-left:1px solid var(--rule)}
+@media (max-width:620px){.fl-lb.r{border-left:0;border-top:1px solid var(--rule)}}
+.fl-row{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.45;
+  color:var(--ink-2);padding:6px 7px;border-radius:6px;border:0;background:none;text-align:left;
+  width:100%;cursor:pointer;font-family:inherit;opacity:0;transform:translateY(5px);
+  animation:flpop .32s ease forwards}
+@keyframes flpop{to{opacity:1;transform:translateY(0)}}
+.fl-row:hover{background:var(--surface-2)}
+.fl-row .i{color:var(--muted);font-variant-numeric:tabular-nums;flex:none;font-weight:660}
+.fl-row.now{background:var(--surface-2);color:var(--ink);font-weight:600}
+.fl-row.now .i{color:var(--s2)}
+.fl-row.x{color:var(--s2)}
+.fl-gap{height:29px}
+@media (prefers-reduced-motion:reduce){.fl-cross.on{animation:none;stroke-dasharray:none}}
+
 /* ---------- stage headers ---------- */
 .stage{display:flex;align-items:center;gap:16px;margin:38px 0 4px;padding:16px 20px;
   background:var(--surface-2);border:1px solid var(--rule);border-radius:14px}
@@ -405,6 +470,8 @@ footer p + p{margin-top:8px}
         <span class="n">1</span> Standard analytics view</button>
       <button role="tab" id="tab-b" aria-controls="mode-b" aria-selected="false">
         <span class="n">2</span> Interactive dashboard</button>
+      <button role="tab" id="tab-c" aria-controls="mode-c" aria-selected="false">
+        <span class="n">3</span> How it is built</button>
     </div>
     <div class="switch-note" id="switch-note"></div>
   </div></div>
@@ -671,6 +738,160 @@ footer p + p{margin-top:8px}
         derives from that table, in Python at build time and again in JavaScript on every filter,
         so two panels cannot disagree. The generator re-derives each view twice and refuses to
         publish on a mismatch.</p>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- MODE C — where the data actually goes                                 -->
+  <!-- ==================================================================== -->
+  <section class="mode" id="mode-c" role="tabpanel" aria-labelledby="tab-c" hidden>
+
+    <div class="stage">
+      <div class="stage-n">3</div>
+      <div class="stage-t">
+        <h2>Where the data actually goes</h2>
+        <p>What an AI-assisted pipeline sends out, and what never leaves the machine.</p>
+      </div>
+      <span class="stage-who">For the data owner</span>
+    </div>
+
+    <p class="cap" style="max-width:88ch;margin:10px 0 4px">Views 1 and 2 are built by the pipeline
+      below. The reasonable question about any AI-assisted analysis is what it did with the events —
+      so here is the boundary. The model writes the queries and the chart structure; the code then
+      runs locally against the full dataset. Only the shape crosses: field names and a short sample.</p>
+
+    <div class="fl-transport">
+      <button class="fl-btn" id="fl-play">Play</button>
+      <button class="fl-btn ghost" id="fl-reset">Restart</button>
+      <div class="fl-ticks" id="fl-ticks"></div>
+      <div class="fl-count" id="fl-count">0 / 9</div>
+    </div>
+
+    <div class="flowgrid">
+
+      <div class="panel">
+        <div class="panel-h"><h2>The layout</h2><span class="tag">Hover an orange arrow</span></div>
+        <p class="cap">Everything inside the box runs on hardware you control.</p>
+        <div class="fl-holder">
+          <div class="fl-tip" id="fl-tip"></div>
+          <div class="flowscroll">
+            <svg class="flowsvg" viewBox="0 0 900 470" role="img"
+                 aria-label="Pipeline diagram. A large box labelled Your machine contains the raw event store, Python processing, a local language model and the published pages. A small box outside it, Claude Code, receives only schema, field names and sample rows, and returns queries and chart definitions.">
+              <defs>
+                <marker id="flar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                        markerHeight="6" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+                </marker>
+              </defs>
+
+              <rect class="fl-zone" x="16" y="44" width="500" height="400" rx="12"/>
+              <text class="fl-zlabel" x="34" y="34">Your machine</text>
+              <line class="fl-gutter" x1="560" y1="26" x2="560" y2="452"/>
+              <text class="fl-never" x="560" y="466" text-anchor="middle">local · internet</text>
+              <text class="fl-zlabel" x="700" y="66">Cloud</text>
+
+              <text class="fl-lab" x="36" y="86">Event exports</text>
+              <text class="fl-lab" x="36" y="104">store reports</text>
+              <text class="fl-lab" x="36" y="122">app event log</text>
+              <g id="fl-e-src"><path class="fl-edge thick" d="M150,103 L266,103" marker-end="url(#flar)"/></g>
+              <text class="fl-never" x="154" y="93">full event history</text>
+
+              <g class="fl-node" id="fl-raw">
+                <rect x="274" y="72" width="200" height="62" rx="9"/>
+                <text x="290" y="98">Raw events</text>
+                <text class="s" x="290" y="118">2.4M rows — stay here</text>
+              </g>
+
+              <g id="fl-e-split">
+                <path class="fl-edge" d="M374,134 L374,186 L142,186 L142,218" marker-end="url(#flar)"/>
+                <path class="fl-edge" d="M374,134 L374,186 L384,186 L384,218" marker-end="url(#flar)"/>
+              </g>
+
+              <g class="fl-node" id="fl-py">
+                <rect x="44" y="222" width="196" height="92" rx="9"/>
+                <text x="60" y="250">Python</text>
+                <text class="s" x="60" y="270">the cube, funnels,</text>
+                <text class="s" x="60" y="288">cohorts, guard metrics</text>
+              </g>
+
+              <g class="fl-node" id="fl-llm">
+                <rect x="286" y="222" width="196" height="92" rx="9"/>
+                <text x="302" y="250">Local model</text>
+                <text class="s" x="302" y="270">summarize, classify —</text>
+                <text class="s" x="302" y="288">on real data, offline</text>
+              </g>
+
+              <g id="fl-e-out">
+                <path class="fl-edge" d="M142,314 L142,344 L246,344 L246,364" marker-end="url(#flar)"/>
+                <path class="fl-edge" d="M384,314 L384,344 L274,344 L274,364" marker-end="url(#flar)"/>
+              </g>
+
+              <g class="fl-node" id="fl-dash">
+                <rect x="150" y="368" width="220" height="66" rx="9"/>
+                <text x="166" y="390">Views 1 and 2</text>
+                <text class="s" x="166" y="408">weekly + monthly totals</text>
+                <text class="s" x="166" y="424">chart · takeaway · result</text>
+              </g>
+              <text class="fl-never" x="386" y="394">rollups only —</text>
+              <text class="fl-never" x="386" y="408">not raw rows</text>
+
+              <g class="fl-node cloud" id="fl-cloud">
+                <rect x="700" y="84" width="184" height="112" rx="9"/>
+                <text x="716" y="122">Claude Code</text>
+                <text class="s" x="716" y="144">writes queries and</text>
+                <text class="s" x="716" y="162">chart definitions</text>
+              </g>
+
+              <text class="fl-never" x="607" y="86" text-anchor="middle">schema · field names</text>
+              <text class="fl-never" x="607" y="99" text-anchor="middle">20 sample rows</text>
+              <path class="fl-cross" id="fl-xout" d="M518,112 L694,112" marker-end="url(#flar)"/>
+              <path class="fl-hit" id="fl-hout" d="M518,112 L694,112" tabindex="0"
+                    data-t="Leaves your machine"
+                    data-b='{
+  "event": "trial_started",
+  "properties": [
+    "user_id", "trial_len",
+    "platform", "arm"
+  ]
+}
+Field names only — no values.'/>
+
+              <path class="fl-cross" id="fl-xin" d="M694,170 L518,170" marker-end="url(#flar)"/>
+              <path class="fl-hit" id="fl-hin" d="M694,170 L518,170" tabindex="0"
+                    data-t="Comes back"
+                    data-b='SELECT week, arm,
+       count(distinct user_id)
+FROM events
+GROUP BY week, arm
+
+Code and chart specs. No data.'/>
+              <text class="fl-never" x="607" y="190" text-anchor="middle">queries · chart</text>
+              <text class="fl-never" x="607" y="203" text-anchor="middle">definitions</text>
+
+              <text class="fl-never" x="700" y="238"><tspan class="h">Never receives:</tspan></text>
+              <text class="fl-never" x="700" y="256">user records · PII</text>
+              <text class="fl-never" x="700" y="272">credentials · raw events</text>
+            </svg>
+          </div>
+        </div>
+        <p class="cap" style="margin-bottom:0">The two orange arrows are the only traffic that leaves
+          the box, and neither carries a row of user data. The published page holds weekly and monthly
+          totals — not the 2.4M underlying events.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h2>The sequence</h2><span class="tag">Only the orange steps cross</span></div>
+        <p class="cap">Press play. Steps light up on the diagram as they run.</p>
+        <div class="fl-log">
+          <div class="fl-lh l">Your machine</div>
+          <div class="fl-lh r">Claude Code</div>
+          <div class="fl-lb l" id="fl-logl"></div>
+          <div class="fl-lb r" id="fl-logr"></div>
+        </div>
+        <p class="cap" style="margin:14px 0 0">The two crossing steps are the only ones that touch the
+          network. Everything that reads an actual event happens on the left.</p>
+      </div>
+
     </div>
   </section>
   </div>
@@ -1347,30 +1568,36 @@ function renderModeB(){ renderStage1(); renderStage2(); renderStage3(); }
 /* ===========================================================================
    Mode switching, theme, boot
    ======================================================================== */
+const MODES = ['a', 'b', 'c'];
 const NOTES = {
   a: 'What a standard event-analytics tool gives you out of the box — no extra pipeline, no reconstruction. Read it, then flip the switch.',
-  b: 'Same events, one reconstructed column, one atomic cube. Every filter re-derives every panel from that one table.'
+  b: 'Same events, one reconstructed column, one atomic cube. Every filter re-derives every panel from that one table.',
+  c: 'The pipeline that builds views 1 and 2 — and the boundary it never crosses. One of the nine steps runs off-machine; only the two orange transfers touch the network.'
 };
+const RENDER = { a: renderModeA, b: renderModeB, c: renderModeC };
 let curMode = null, animating = false;
 
 function moveThumb(){
-  const btn = document.getElementById(curMode === 'b' ? 'tab-b' : 'tab-a');
+  const btn = document.getElementById('tab-' + (curMode || 'a'));
   const thumb = document.getElementById('seg-thumb');
   if (!btn || !thumb) return;
   thumb.style.width = btn.offsetWidth + 'px';
   thumb.style.transform = 'translateX(' + (btn.offsetLeft - 4) + 'px)';
 }
 
+function markTabs(which){
+  MODES.forEach(m => {
+    document.getElementById('tab-' + m).setAttribute('aria-selected', m === which);
+  });
+  document.getElementById('switch-note').textContent = NOTES[which];
+}
+
 /* render without animating — boot, resize, theme change */
 function paint(which){
-  const a = which === 'a';
-  document.getElementById('mode-a').hidden = !a;
-  document.getElementById('mode-b').hidden = a;
-  document.getElementById('tab-a').setAttribute('aria-selected', a);
-  document.getElementById('tab-b').setAttribute('aria-selected', !a);
-  document.getElementById('switch-note').textContent = a ? NOTES.a : NOTES.b;
+  MODES.forEach(m => { document.getElementById('mode-' + m).hidden = (m !== which); });
+  markTabs(which);
   curMode = which;
-  if (a) renderModeA(); else renderModeB();
+  RENDER[which]();
   moveThumb();
 }
 
@@ -1381,7 +1608,7 @@ function setMode(which){
   if (curMode === null || matchMedia('(prefers-reduced-motion: reduce)').matches){
     paint(which); return;
   }
-  const fwd  = which === 'b';            /* 1 -> 2 wipes left to right */
+  const fwd  = MODES.indexOf(which) > MODES.indexOf(curMode);  /* rightward wipes right */
   const host = document.querySelector('.modes');
   const out  = document.getElementById('mode-' + curMode);
   const inc  = document.getElementById('mode-' + which);
@@ -1401,7 +1628,7 @@ function setMode(which){
 
     /* render the incoming view first so the reveal shows real content */
     inc.hidden = false;
-    if (which === 'a') renderModeA(); else renderModeB();
+    RENDER[which]();
 
     /* hold the frame at what the viewer can actually see, so nothing jumps */
     const top = host.getBoundingClientRect().top;
@@ -1410,9 +1637,7 @@ function setMode(which){
     host.classList.add('wiping');
     document.getElementById('wipeknob').style.top = Math.round(frame/2) + 'px';
 
-    document.getElementById('tab-a').setAttribute('aria-selected', which === 'a');
-    document.getElementById('tab-b').setAttribute('aria-selected', which === 'b');
-    document.getElementById('switch-note').textContent = which === 'a' ? NOTES.a : NOTES.b;
+    markTabs(which);
     curMode = which;
     moveThumb();
 
@@ -1448,8 +1673,101 @@ function setMode(which){
     requestAnimationFrame(step);
   }
 }
-document.getElementById('tab-a').addEventListener('click', () => setMode('a'));
-document.getElementById('tab-b').addEventListener('click', () => setMode('b'));
+/* ---------------- mode C — the pipeline walkthrough ----------------------- */
+const FLOW = [
+  {s:'l', t:'Pulling event exports',                  n:['fl-e-src','fl-raw']},
+  {s:'l', t:'Parsing 2.4M rows to the local store',   n:['fl-raw']},
+  {s:'l', t:'Extracting schema + 20 sample rows',     n:['fl-raw']},
+  {s:'x', t:'→ Sending schema and field names',  n:['fl-xout','fl-cloud']},
+  {s:'r', t:'Drafting queries + chart definitions',   n:['fl-cloud']},
+  {s:'r', t:'← Returning queries, no data',      n:['fl-xin']},
+  {s:'l', t:'Querying full data → the cube',     n:['fl-py','fl-e-split']},
+  {s:'l', t:'Local model writes the takeaways',       n:['fl-llm']},
+  {s:'l', t:'Rendering views 1 and 2 from totals',    n:['fl-dash','fl-e-out']}
+];
+let flStep = 0, flTimer = null, flPlaying = false, flBuilt = false;
+
+function flClear(){
+  document.querySelectorAll('#mode-c .on').forEach(el => el.classList.remove('on'));
+}
+
+function renderModeC(){
+  const ticks = document.getElementById('fl-ticks');
+  if (!flBuilt){
+    ticks.innerHTML = FLOW.map(() => '<div class="fl-tick"></div>').join('');
+    flBuilt = true;
+  }
+  const L = document.getElementById('fl-logl'), R = document.getElementById('fl-logr');
+  L.innerHTML = ''; R.innerHTML = '';
+  flClear();
+
+  for (let i = 0; i < flStep; i++){
+    const st = FLOW[i];
+    const to = (st.s === 'r') ? R : L, other = (st.s === 'r') ? L : R;
+    const b = document.createElement('button');
+    b.className = 'fl-row' + (i === flStep - 1 ? ' now' : '') + (st.s === 'x' ? ' x' : '');
+    b.dataset.i = i;
+    b.innerHTML = '<span class="i">' + String(i + 1).padStart(2, '0') + '</span><span>' + st.t + '</span>';
+    to.appendChild(b);
+    const g = document.createElement('div'); g.className = 'fl-gap'; other.appendChild(g);
+  }
+  if (flStep > 0){
+    FLOW[flStep - 1].n.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('on'); });
+  }
+  document.getElementById('fl-count').textContent = flStep + ' / ' + FLOW.length;
+  [...ticks.children].forEach((t, k) => {
+    t.className = 'fl-tick' + (k < flStep - 1 ? ' done' : (k === flStep - 1 ? ' now' : ''));
+  });
+  document.getElementById('fl-play').textContent =
+    flPlaying ? 'Pause' : (flStep >= FLOW.length ? 'Play again' : 'Play');
+}
+
+function flStop(){ flPlaying = false; clearInterval(flTimer); renderModeC(); }
+function flAdvance(){
+  flStep++;
+  if (flStep >= FLOW.length){ flStep = FLOW.length; flPlaying = false; clearInterval(flTimer); }
+  renderModeC();
+}
+function flStart(){
+  if (flStep >= FLOW.length) flStep = 0;
+  flPlaying = true;
+  clearInterval(flTimer);
+  flTimer = setInterval(flAdvance, 1700);
+  flAdvance();
+}
+
+document.getElementById('fl-play').addEventListener('click', () => flPlaying ? flStop() : flStart());
+document.getElementById('fl-reset').addEventListener('click', () => { flStep = 0; flStop(); });
+document.getElementById('mode-c').addEventListener('click', e => {
+  const row = e.target.closest('.fl-row');
+  if (!row) return;
+  flStep = (+row.dataset.i) + 1;
+  flStop();
+});
+
+[['fl-hout','fl-xout'], ['fl-hin','fl-xin']].forEach(([hitId, edgeId]) => {
+  const hit = document.getElementById(hitId), tip = document.getElementById('fl-tip');
+  const show = () => {
+    const host = document.querySelector('#mode-c .fl-holder').getBoundingClientRect();
+    const r = hit.getBoundingClientRect();
+    tip.innerHTML = '<b>' + hit.dataset.t + '</b>' + hit.dataset.b;
+    tip.classList.add('on');
+    tip.style.left = Math.max(6, Math.min(r.left - host.left + r.width/2 - 140, host.width - 290)) + 'px';
+    tip.style.top  = (r.top - host.top + r.height + 10) + 'px';
+    document.getElementById(edgeId).classList.add('on');
+  };
+  const hide = () => {
+    tip.classList.remove('on');
+    const live = flStep > 0 && FLOW[flStep - 1].n.indexOf(edgeId) !== -1;
+    if (!live) document.getElementById(edgeId).classList.remove('on');
+  };
+  hit.addEventListener('mouseenter', show); hit.addEventListener('focus', show);
+  hit.addEventListener('mouseleave', hide); hit.addEventListener('blur', hide);
+});
+
+MODES.forEach(m => {
+  document.getElementById('tab-' + m).addEventListener('click', () => setMode(m));
+});
 
 document.getElementById('theme').addEventListener('click', () => {
   const cur = document.documentElement.getAttribute('data-theme');
