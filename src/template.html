@@ -263,7 +263,7 @@ select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
 .scr .fit.ok{background:color-mix(in srgb,var(--good) 13%,var(--surface));color:var(--good-ink)}
 .scr .fit.warn{background:color-mix(in srgb,var(--warn) 20%,var(--surface));color:var(--ink)}
 .scr .cta{margin-top:auto;background:var(--accent);color:#fff;border-radius:9px;text-align:center;
-  padding:9px 8px;font-size:12px;font-weight:660}
+  padding:10px 8px;font-size:12.5px;font-weight:660;line-height:1.35}
 .scr .locked{font-size:10.5px;color:var(--muted);text-align:center;padding:5px 0 1px}
 .mock .mcap{font-size:11.5px;color:var(--ink-2);line-height:1.5}
 .mock .mcap b{color:var(--ink)}
@@ -437,12 +437,20 @@ select{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;
 .cvisual{padding-top:14px;border-top:1px solid var(--rule)}
 
 /* before / after */
-.ba{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap}
-.bacol{display:flex;flex-direction:column;gap:6px;max-width:190px;flex:1;min-width:150px}
-.baarrow{font-size:20px;color:var(--muted);flex:none}
+.ba{display:flex;align-items:center;gap:26px;justify-content:center;flex-wrap:wrap}
+.bacol{display:flex;flex-direction:column;gap:7px;max-width:248px;flex:1;min-width:206px}
+.baarrow{flex:none;width:54px;height:3px;background:var(--ink-2);border-radius:2px;position:relative;
+  margin:0 2px;font-size:0}
+.baarrow::after{content:"";position:absolute;right:-2px;top:50%;transform:translateY(-50%) rotate(45deg);
+  width:13px;height:13px;border-top:3px solid var(--ink-2);border-right:3px solid var(--ink-2);
+  border-radius:2px}
+@media (max-width:560px){
+  .baarrow{width:3px;height:44px}
+  .baarrow::after{right:50%;top:auto;bottom:-2px;transform:translateX(50%) rotate(135deg)}
+}
 .balbl{font-size:10.5px;font-weight:680;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .bastack{display:flex;flex-direction:column;gap:12px}
-.bastack .phone{max-width:210px;align-self:center;width:100%}
+.bastack .phone{max-width:248px;align-self:center;width:100%}
 .rail{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px}
 .rstep{font-size:11.5px;font-weight:600;border:1px solid var(--rule);background:var(--surface-2);
   color:var(--ink-2);border-radius:7px;padding:5px 10px}
@@ -1423,7 +1431,7 @@ function mockPaywall(days, highlight){
       <div class="st"><div class="sl">Then</div><div class="sv">$9.99/mo</div></div>
       <div class="st"><div class="sl">Cancel</div><div class="sv">Anytime</div></div>
     </div>
-    <div class="fit ok">✓ Full access to every workout and plan</div>
+    <div class="fit ok">✓ Every workout and plan included</div>
     <div class="cta">Start my ${days}-day free trial →</div>
   </div></div>`;
 }
@@ -1521,10 +1529,10 @@ function renderStage3(){
   document.getElementById('f-btrend').innerHTML =
     `Both arms sit above the starting line in every week they have run. <b>${best.short}</b> leads at ` +
     `<b>${best.t2p.toFixed(1)}%</b>, and the gap is stable rather than a single spike — which is the ` +
-    `difference between a result and a coincidence. Note the control arm ran at ` +
-    `<b>${base.t2p.toFixed(1)}%</b> over this window against <b>${P.t2p.toFixed(1)}%</b> before the ` +
-    `test — ordinary week-to-week drift, and exactly why the comparison is made against a live ` +
-    `control rather than against last month.`;
+    `difference between a result and a coincidence. The control arm held at ` +
+    `<b>${base.t2p.toFixed(1)}%</b> across the same window, against <b>${P.t2p.toFixed(1)}%</b> before ` +
+    `the test: it did not move. That is what lets the separation be attributed to the changes rather ` +
+    `than to the season, the ad mix, or anything else that would have moved all three arms together.`;
 
   /* the same benchmark strip, now with the arms on it */
   benchStrip('c-bench2', 'tip-bench2', [

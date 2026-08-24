@@ -61,7 +61,7 @@ ARMS = [
     {
         "key": "trial14", "slot": 3, "name": "Change A — 14-day trial", "short": "A · 14-day trial",
         "label": "14-day trial · paywall on first launch",
-        "i2t": 0.069, "t2p": 0.392, "d0": 0.331, "renew": 0.788,
+        "i2t": 0.069, "t2p": 0.376, "d0": 0.331, "renew": 0.788,
         "live_from": SPLIT_WEEK,
         "hypothesis": "Three days is not long enough to reach the moment the app is "
                       "actually useful, so the trial is being judged before it has done "
@@ -175,19 +175,18 @@ def main():
                 rows.append(None)
                 continue
             live = sum(1 for x in ARMS if x["live_from"] <= w)
-            weekly_installs = 8600 + 190 * w
-            installs = int(round(weekly_installs / live * rng.uniform(0.93, 1.07)))
+            weekly_installs = 12400 + 260 * w
+            installs = int(round(weekly_installs / live * rng.uniform(0.96, 1.04)))
 
-            trials = 0
-            for _ in range(installs):
-                if rng.random() < a["i2t"] * rng.uniform(0.9, 1.1):
-                    trials += 1
-            paid = 0
-            p = a["t2p"] * rng.uniform(0.9, 1.1)
-            for _ in range(trials):
-                if rng.random() < p:
-                    paid += 1
-            renewed = int(round(paid * a["renew"] * rng.uniform(0.97, 1.03)))
+            # Counts come from the arm's rate plus a small controlled jitter, rather than
+            # from per-user Bernoulli draws. At a few hundred trials a week, sampling noise
+            # alone swings the weekly rate by 2-3 points, which reads as spiky and invites
+            # the viewer to explain bumps that are not there. The figures are illustrative,
+            # so the jitter is set to show ordinary week-to-week movement without the noise
+            # burying the effect being demonstrated.
+            trials = int(round(installs * a["i2t"] * rng.uniform(0.97, 1.03)))
+            paid = int(round(trials * a["t2p"] * rng.uniform(0.955, 1.045)))
+            renewed = int(round(paid * a["renew"] * rng.uniform(0.985, 1.015)))
             rows.append({
                 "installs": installs, "trials": trials, "paid": paid,
                 "renewed": min(renewed, paid),
